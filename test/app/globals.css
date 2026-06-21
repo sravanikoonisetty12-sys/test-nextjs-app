@@ -1,26 +1,358 @@
 @import "tailwindcss";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ================= 1. RESET & BASE PROPERTIES ================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Inter, Arial, Helvetica, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #05022d;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* ================= 2. SIGN IN GRAPHIC GRADIENT LAYER ================= */
+.background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: 
+    radial-gradient(circle at left, rgba(255, 140, 0, 0.6), transparent 40%),
+    radial-gradient(circle at right, rgba(219, 41, 130, 0.4), transparent 45%),
+    #111;
+  filter: blur(18px);
+}
+
+.signin-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-card {
+  width: 420px;
+  background: #eae9e3;
+  padding: 40px;
+  border-radius: 25px;
+  box-shadow: 0 25px 60px rgba(0,0,0,.25);
+  z-index: 10;
+  text-align: left;
+}
+
+.login-card h1 {
+  font-size: 38px;
+  color: #111827;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.login-card h1 span {
+  color: #e90b0b;
+}
+
+.login-card p {
+  color: #777;
+  margin-bottom: 25px;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  outline: none;
+  background: #fff;
+}
+
+/* ================= 3. CORE APPLAYOUT SIDEBAR MATRIX ================= */
+.app-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 270px;
+  background: #121212;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.logo {
+  padding: 30px 20px;
+  font-size: 28px;
+  font-weight: bold;
+  border-bottom: 1px solid #333;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  border-bottom: 1px solid #222;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #e8822a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+}
+
+.menu {
+  list-style: none;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.menu li a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  color: white;
+  text-decoration: none;
+  transition: 0.3s;
+  font-size: 16px;
+}
+
+.menu li a:hover {
+  background: #1d2d5f;
+}
+
+.logout {
+  margin-top: auto;
+  padding: 20px;
+  border-top: 1px solid #222;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logout:hover {
+  background: #1a1a1a;
+}
+
+/* ================= 4. DASHBOARD & PAYMENTS WORKSPACE ================= */
+.main-content {
+  flex: 1;
+  padding: 50px;
+  height: 100vh;
+  overflow-y: auto;
+  background: #D38B27; /* Master workspace backdrop exact value alignment override styling */
+  box-sizing: border-box;
+}
+
+/* ✅ UPDATED NAME CLASS FROM payment-page-container TO payments-page-container */
+.payments-page-container {
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.payments-page-container h1 {
+  font-size: 54px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #111111 !important; /* Forces color profile rendering bypassing Tailwind rules */
+}
+
+.subtitle {
+  color: #ebe5e5;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+/* Summary Card Grid Layout */
+.summary-card {
+  width: 100%;
+  max-width: 900px;
+  background: #b4c5ea;
+  color: rgb(36, 35, 35);
+  padding: 30px;
+  border-radius: 20px;
+  margin-bottom: 30px;
+}
+
+.summary-card p {
+  opacity: .8;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.summary-card h2 {
+  font-size: 60px;
+  margin: 15px 0;
+  font-weight: bold;
+  color: #111111;
+}
+
+.invoice-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+}
+
+/* ✅ UPDATED CLASSES FROM payment-card TO payments-card */
+.payments-card {
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.05);
+}
+
+.payments-card h3 {
+  margin-bottom: 25px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #111111;
+}
+
+/* ✅ UPDATED CLASSES FROM payment-methods TO payments-methods */
+.payments-methods {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+/* ✅ UPDATED CLASSES FROM payment-option TO payments-option */
+.payments-option {
+  flex: 1;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  padding: 25px;
+  text-align: center;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.payments-option i {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.payments-option:hover {
+  border-color: #3561ff;
+}
+
+.payments-option.selected {
+  border-color: #3561ff;
+  background: #f4f7ff;
+  color: #3561ff;
+}
+
+.payments-card label {
+  display: block;
+  margin-bottom: 8px;
+  margin-top: 15px;
+  font-weight: 500;
+  color: #222;
+}
+
+.payments-card input {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #cccccc;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  color: #111111;
+}
+
+.payments-card input:focus {
+  border-color: #3561ff;
+}
+
+.row {
+  display: flex;
+  gap: 20px;
+}
+
+.row div {
+  flex: 1;
+}
+
+#payBtn {
+  width: 100%;
+  margin-top: 30px;
+  background: #3561ff;
+  color: white; 
+  border: none;
+  padding: 18px;
+  border-radius: 12px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: .3s;
+}
+
+#payBtn:hover {
+  background: #102f9f;
+}
+
+.secure {
+  text-align: center;
+  color: #777;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.secure i {
+  color: green;
+}
+
+/* ================= 5. INTERFACE RESPONSIVE SYSTEM ================= */
+@media (max-width: 900px) {
+  .app-layout {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+  }
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    height: auto;
+    padding: 20px;
+  }
+  /* ✅ UPDATED NAME RESPONSIVE BLOCKS FOR PLURAL CONSISTENCY */
+  .summary-card, .payments-card {
+    width: 100%;
+  }
+  .row, .payments-methods {
+    flex-direction: column;
+  }
 }

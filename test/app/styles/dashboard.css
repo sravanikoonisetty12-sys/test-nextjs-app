@@ -1,0 +1,198 @@
+
+ @import "@fortawesome/fontawesome-free/css/all.min.css";
+
+/* ================= HEADER ================= */
+
+.header h1 {
+  font-size: 30px;
+  margin-bottom: 10px;
+  color: #111;
+}
+
+.header p {
+  color: #f9f4f4;
+  margin-bottom: 25px;
+}
+
+/* ================= STATS ================= */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.card {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card h5 {
+  color: #555;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.card h2 {
+  font-size: 28px;
+  color: #111;
+}
+
+.red {
+  color: #d92c2c;
+}
+
+.green {
+  color: #10a246;
+}
+
+/* ================= CONTENT GRID ================= */
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+/* ================= PANELS ================= */
+
+.activity,
+.quick-card,
+.invoice-card {
+  background: #161515;   /* ⭐ BLACK BOX */
+  padding: 25px;
+  border-radius: 15px;
+  color: #ffffff;
+  overflow: hidden;
+}
+
+/* ================= ACTIVITY ================= */
+
+.activity .item {
+  display: flex;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.activity .item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+}
+
+.success {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.file {
+  background: #ffedd5;
+  color: #b45309;
+}
+
+.invoice {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.activity-text h4 {
+  font-size: 15px;
+  margin-bottom: 5px;
+  color: #fff;
+}
+
+.activity-text p {
+  font-size: 13px;
+  color: #aaa;
+}
+
+/* ================= QUICK ACTIONS ================= */
+
+.quick-card button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  background: #1f1f1f;
+  color: white;
+  transition: 0.3s;
+}
+
+.quick-card button:hover {
+  opacity: 0.85;
+}
+
+.primary {
+  background: #112d89 !important;
+}
+
+/* ================= INVOICE CARD ================= */
+
+.invoice-card h3 {
+  color: #ffffff;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+/* ROWS */
+.invoice-card .invoice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #2a2a2a;
+  background: transparent;
+}
+
+.invoice-card .invoice:last-child {
+  border-bottom: none;
+}
+
+/* TEXT */
+.invoice-card span,
+.invoice-card strong,
+.invoice-card p {
+  color: #ffffff;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1024px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .header h1 {
+    font-size: 22px;
+  }
+}

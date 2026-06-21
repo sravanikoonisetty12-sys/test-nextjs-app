@@ -1,0 +1,160 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Inter,sans-serif;
+}
+
+body{
+    background:#d08720;
+}
+
+/* Main Content */
+
+.main-content{
+    width:100%;
+    padding:45px;
+}
+
+.main-content h1{
+    font-size:50px;
+    color:#111;
+}
+
+.subtitle{
+    margin-top:10px;
+    color:#ede6e6;
+}
+
+/* Invoice Card */
+
+.invoice-card{
+    background:white;
+    margin-top:30px;
+    padding:25px;
+    border-radius:15px;
+    overflow-x:auto;
+}
+
+.top-bar{
+    display:flex;
+    gap:15px;
+    margin-bottom:25px;
+    flex-wrap:wrap;
+}
+
+.top-bar input{
+    flex:1;
+    min-width:250px;
+    padding:14px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    color:#111;
+}
+
+.top-bar input::placeholder{
+    color:#555;
+}
+
+.top-bar select{
+    padding:14px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    color:#111;
+    background:#fff;
+    font-size:14px;
+    outline:none;
+}
+
+.new-btn{
+    background:#2d5cff;
+    color:white;
+    border:none;
+    padding:14px 20px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+/* Table */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,
+td{
+    padding:18px;
+    text-align:left;
+    border-bottom:1px solid #eee;
+}
+
+th{
+    font-weight:700;
+    color:#111;
+}
+
+td{
+    color:#333;
+}
+
+/* Status */
+
+.status{
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:600;
+}
+
+.paid{
+    background:#dff5e5;
+    color:green;
+}
+
+.draft{
+    background:#e7e7ff;
+    color:blue;
+}
+
+.overdue{
+    background:#ffe0e0;
+    color:red;
+}
+
+.due{
+    background:#fff2d8;
+    color:#b76b00;
+}
+
+/* Buttons */
+
+.action-btn{
+    padding:8px 12px;
+    border:1px solid #ddd;
+    background:white;
+    border-radius:6px;
+    cursor:pointer;
+    margin-right:5px;
+}
+
+.action-btn:hover{
+    background:#f5f5f5;
+}
+
+/* Responsive */
+
+@media(max-width:768px){
+
+    .main-content{
+        padding:20px;
+    }
+
+    .top-bar{
+        flex-direction:column;
+    }
+
+    .main-content h1{
+        font-size:38px;
+    }
+}

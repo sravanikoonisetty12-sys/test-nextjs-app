@@ -1,0 +1,125 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Inter, sans-serif;
+}
+
+/* ================= BODY ================= */
+
+body {
+  min-height: 100vh;
+  overflow: hidden;
+  background: #05022d;
+}
+
+/* ================= BACKGROUND ================= */
+
+.background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+
+  background:
+    radial-gradient(circle at left,
+      rgba(255, 140, 0, 0.6),
+      transparent 40%),
+
+    radial-gradient(circle at right,
+      rgba(219, 41, 130, 0.4),
+      transparent 45%),
+
+    #111;
+
+  filter: blur(18px);
+}
+
+/* ================= SIGNIN WRAPPER ================= */
+
+.signin-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ================= LOGIN CARD ================= */
+
+.login-card {
+  width: 420px;
+  background: #eae9e3;
+  padding: 40px;
+  border-radius: 25px;
+  box-shadow: 0 25px 60px rgba(0,0,0,.25);
+
+  z-index: 10;
+  text-align: left;
+}
+
+/* TITLE */
+
+.login-card h1 {
+  font-size: 38px;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.login-card h1 span {
+  color: #e90b0b;
+}
+
+/* TEXT */
+
+.login-card p {
+  color: #777;
+  margin-bottom: 25px;
+}
+
+/* INPUT */
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  outline: none;
+  background: #fff;
+}
+
+/* BUTTON */
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #2f5be7;
+  color: white;
+
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: #2149c7;
+}
+
+/* SMALL TEXT */
+
+small {
+  display: block;
+  text-align: center;
+  margin-top: 18px;
+  color: #222;
+}

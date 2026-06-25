@@ -263,13 +263,13 @@ body {
 }
 
 .payments-option:hover {
-  border-color: #3561ff;
+  border-color: #061650;
 }
 
 .payments-option.selected {
-  border-color: #3561ff;
+  border-color: #0b1a53;
   background: #f4f7ff;
-  color: #3561ff;
+  color: #0a2174;
 }
 
 .payments-card label {

@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
-// 1. Force the page to be dynamic, skipping static pre-rendering
+// This forces the page to render at runtime, fixing the prerender error
 export const dynamic = 'force-dynamic';
 
 function PaymentContent() {
@@ -50,18 +50,45 @@ function PaymentContent() {
     <div className="payments-page-container">
       <h1>Make a Payment</h1>
       <p className="subtitle">Securely pay outstanding invoices using your preferred method.</p>
-      
-      {/* ... keep your existing JSX/UI code here ... */}
-      
-      <form onSubmit={handlePaymentSubmit}>
-          {/* Your form inputs remain exactly the same */}
-          <button type="submit" id="payBtn">Pay</button>
-      </form>
+
+      <div className="summary-card">
+        <p>TOTAL OUTSTANDING</p>
+        <h2>{invoice ? `$${invoice.amount?.toLocaleString()}` : "Loading..."}</h2>
+        {invoice && (
+          <div className="invoice-row">
+            <span>Invoice: {invoice.invoice_number}</span>
+            <span>${invoice.amount?.toLocaleString()}</span>
+          </div>
+        )}
+      </div>
+
+      <div className="payments-card">
+        <h3>Payment Method</h3>
+        <form onSubmit={handlePaymentSubmit}>
+          <label>Name on Card</label>
+          <input type="text" value={cardName} onChange={(e) => setCardName(e.target.value)} required />
+          <label>Card Number</label>
+          <input type="text" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} required />
+          <div className="row">
+            <div>
+              <label>Expiry Date</label>
+              <input type="text" value={expiry} onChange={(e) => setExpiry(e.target.value)} required />
+            </div>
+            <div>
+              <label>CVV</label>
+              <input type="password" value={cvv} onChange={(e) => setCvv(e.target.value)} required />
+            </div>
+          </div>
+          <button type="submit" id="payBtn">
+            Pay {invoice ? `$${invoice.amount?.toLocaleString()}` : "..."}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
 
-// 2. Wrap the content in Suspense to satisfy Next.js requirements
+// Next.js requires the use of Suspense when using useSearchParams()
 export default function PaymentsPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>

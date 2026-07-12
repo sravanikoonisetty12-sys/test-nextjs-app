@@ -4,12 +4,14 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
-// This forces the page to render at runtime, fixing the prerender error
+// This forces Next.js to treat this page as dynamic at runtime
 export const dynamic = 'force-dynamic';
 
 function PaymentContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  
+  // Use a fallback for the invoiceId to prevent potential undefined errors during first render
   const invoiceId = searchParams.get("invoice"); 
   
   const [invoice, setInvoice] = useState<any>(null);
@@ -22,8 +24,15 @@ function PaymentContent() {
   useEffect(() => {
     if (invoiceId) {
       const fetchInvoice = async () => {
-        const { data } = await supabase.from("invoices").select("*").eq("invoice_number", invoiceId).single();
-        if (data) setInvoice(data);
+        const { data, error } = await supabase
+          .from("invoices")
+          .select("*")
+          .eq("invoice_number", invoiceId)
+          .single();
+        
+        if (!error && data) {
+          setInvoice(data);
+        }
       };
       fetchInvoice();
     }
@@ -88,10 +97,10 @@ function PaymentContent() {
   );
 }
 
-// Next.js requires the use of Suspense when using useSearchParams()
+// This is the default entry point for the route
 export default function PaymentsPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>Loading payment details...</div>}>
       <PaymentContent />
     </Suspense>
   );

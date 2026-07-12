@@ -356,3 +356,10 @@ body {
     flex-direction: column;
   }
 }
+.my-background {
+  background-color: #3498db;
+  transition: background-color 0.5s ease;
+}
+.my-background:hover {
+  background-color: #2ecc71;
+}

@@ -1,127 +1,108 @@
 "use client";
 
-import "../styles/submit-request.css";
+import "../../styles/submit-request.css";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "../lib/supabase";
 
 export default function SubmitRequest() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    title: "",
+    category: "Select Category",
+    priority: "Normal",
+    dueDate: "",
+    message: ""
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Request Submitted Successfully 🚀");
+    const { error } = await supabase
+      .from('Requests')
+      .insert([
+        { 
+          title: formData.title, 
+          category: formData.category, 
+          priority: formData.priority, 
+          due_date: formData.dueDate, 
+          messagetext: formData.message  // ✅ Fix: space తీసేశాం
+        },
+      ]);
+
+    if (error) {
+      alert("Error: " + error.message);
+    } else {
+      alert("Request Submitted Successfully 🚀");
+      router.push("/dashboard");
+    }
   };
 
   return (
-    <>
-      <h1 style={{ color: "#111" }}>
-        Submit a Request
-      </h1>
-
-      <p
-        className="subtitle"
-        style={{ color: "#ffffff" }}
-      >
-        Send a message, feedback, or project brief to our team.
-      </p>
+    <div className="submit-request-page">
+      <h1>Submit a Request</h1>
+      <p className="subtitle">Send a message, feedback, or project brief to our team.</p>
 
       <div className="card">
-
-        <h3 style={{ color: "#111" }}>
-          Request Details
-        </h3>
-
+        <h3>Request Details</h3>
         <form onSubmit={handleSubmit}>
-
           <div className="row">
-
             <div className="input-group">
               <label>Request Title</label>
-
-              <input
-                type="text"
-                placeholder="e.g. Website redesign feedback"
-              />
+              <input name="title" onChange={handleChange} value={formData.title} type="text" required />
             </div>
-
             <div className="input-group">
               <label>Category</label>
-
-              <select>
-                <option>Select Category</option>
-                <option>Website</option>
-                <option>Mobile App</option>
-                <option>UI Design</option>
+              <select name="category" onChange={handleChange} value={formData.category}>
+                <option value="Select Category">Select Category</option>
+                <option value="Website">Website</option>
+                <option value="Mobile App">Mobile App</option>
+                <option value="UI Design">UI Design</option>
               </select>
             </div>
-
           </div>
 
           <div className="row">
-
             <div className="input-group">
               <label>Priority</label>
-
-              <select>
-                <option>Normal</option>
-                <option>Low</option>
-                <option>High</option>
+              <select name="priority" onChange={handleChange} value={formData.priority}>
+                <option value="Normal">Normal</option>
+                <option value="Low">Low</option>
+                <option value="High">High</option>
               </select>
             </div>
-
             <div className="input-group">
               <label>Preferred Due Date</label>
-
-              <input type="date" />
+              <input name="dueDate" onChange={handleChange} value={formData.dueDate} type="date" />
             </div>
-
           </div>
 
           <div className="input-group">
-
             <label>Message / Description</label>
-
-            <textarea
-              rows={6}
-              placeholder="Describe your request in detail..."
-            />
-
+            <textarea name="message" onChange={handleChange} value={formData.message} rows={6} />
           </div>
 
           <div className="buttons">
-
-            <button
-              type="submit"
-              className="submit-btn"
-            >
-              Submit Request
-            </button>
-
-            <button
-              type="reset"
-              className="clear-btn"
+            <button type="submit" className="submit-btn">Submit Request</button>
+            <button 
+              type="button" 
+              className="clear-btn" 
+              onClick={() => setFormData({ 
+                title: "", 
+                category: "Select Category", 
+                priority: "Normal", 
+                dueDate: "", 
+                message: "" 
+              })}
             >
               Clear
             </button>
-
           </div>
-
         </form>
-
       </div>
-
-      <div className="card">
-
-        <h3>Attach Files (Optional)</h3>
-
-        <div className="upload-box">
-
-          <h4>Drag & Drop Files Here</h4>
-
-          <p>or click to browse</p>
-
-          <input type="file" />
-
-        </div>
-
-      </div>
-    </>
+    </div>
   );
 }

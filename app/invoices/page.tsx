@@ -1,107 +1,118 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 import "../styles/invoices.css";
 
 export default function Invoices() {
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [viewMode, setViewMode] = useState(false);
+  const [newInvoice, setNewInvoice] = useState({ invoice_number: "", description: "", amount: 0 });
+
+  const fetchInvoices = async () => {
+    const { data } = await supabase.from("invoices").select("*");
+    if (data) setInvoices(data);
+  };
+
+  // పేజీ రిఫ్రెష్ అయ్యేలా మార్చబడింది
+  useEffect(() => {
+    fetchInvoices();
+    window.addEventListener('focus', fetchInvoices);
+    return () => window.removeEventListener('focus', fetchInvoices);
+  }, []);
+
+  const handleSave = async () => {
+    const today = new Date().toISOString().split('T')[0];
+    const { error } = await supabase.from("invoices").insert([{
+      invoice_number: newInvoice.invoice_number,
+      description: newInvoice.description,
+      amount: newInvoice.amount,
+      date: today,
+      due_date: today,
+      status: 'Due Soon'
+    }]);
+    
+    if (!error) {
+      setShowModal(false);
+      handleClear();
+      fetchInvoices();
+    }
+  };
+
+  const handleClear = () => {
+    setNewInvoice({ invoice_number: "", description: "", amount: 0 });
+  };
+
+  const openView = (inv: any) => {
+    setNewInvoice({ invoice_number: inv.invoice_number, description: inv.description, amount: inv.amount });
+    setViewMode(true);
+    setShowModal(true);
+  };
+
   return (
-    <div>
-
-      <h1 className="page-title">
-        Invoices
-      </h1>
-
-      <p className="subtitle">
-        View and manage all your invoices in one place.
-      </p>
+    <div className="main-content">
+      <h1 className="page-title">Invoices</h1>
+      <p className="subtitle">View and manage all your invoices in one place.</p>
 
       <div className="invoice-card">
-
         <div className="top-bar">
-
-          <input
-            type="text"
-            placeholder="Search by invoice number, description..."
-            className="search-input"
-          />
-
-          <select className="status-filter">
-            <option value="all">All Statuses</option>
-            <option value="paid">Paid</option>
-            <option value="draft">Draft</option>
-            <option value="overdue">Overdue</option>
-            <option value="due">Due Soon</option>
-          </select>
-
-          <button className="new-btn">
-            New Invoice
-          </button>
-
+          <input type="text" placeholder="Search by invoice number, description..." className="search-input" />
+          <select className="status-filter"><option value="all">All Statuses</option></select>
+          <button className="new-btn" onClick={() => { setViewMode(false); handleClear(); setShowModal(true); }}>New Invoice</button>
         </div>
 
         <table className="invoice-table">
-
           <thead>
-            <tr>
-              <th>INVOICE #</th>
-              <th>DESCRIPTION</th>
-              <th>DATE</th>
-              <th>DUE DATE</th>
-              <th>AMOUNT</th>
-              <th>STATUS</th>
-              <th>ACTIONS</th>
-            </tr>
+            <tr><th>INVOICE #</th><th>DESCRIPTION</th><th>DATE</th><th>DUE DATE</th><th>AMOUNT</th><th>STATUS</th><th>ACTIONS</th></tr>
           </thead>
-
           <tbody>
-
-            <tr>
-              <td>#INV-0047</td>
-              <td>Brand Identity – Phase 3</td>
-              <td>Jun 01, 2025</td>
-              <td>Jun 15, 2025</td>
-              <td>$1,820.00</td>
-              <td>
-                <span className="status due">Due Soon</span>
-              </td>
-              <td>
-                <button className="action-btn">View</button>
-              </td>
-            </tr>
-
-            <tr>
-              <td>#INV-0045</td>
-              <td>UI/UX Design – Sprint 4</td>
-              <td>May 15, 2025</td>
-              <td>May 30, 2025</td>
-              <td>$2,100.00</td>
-              <td>
-                <span className="status overdue">Overdue</span>
-              </td>
-              <td>
-                <button className="action-btn">View</button>
-              </td>
-            </tr>
-
-            <tr>
-              <td>#INV-0042</td>
-              <td>Website Development – Final</td>
-              <td>Apr 18, 2025</td>
-              <td>May 02, 2025</td>
-              <td>$2,400.00</td>
-              <td>
-                <span className="status paid">Paid</span>
-              </td>
-              <td>
-                <button className="action-btn">PDF</button>
-              </td>
-            </tr>
-
+            {invoices.map((inv) => (
+              <tr key={inv.invoice_number}>
+                <td>{inv.invoice_number}</td>
+                <td>{inv.description}</td>
+                <td>{inv.date}</td>
+                <td>{inv.due_date}</td>
+                <td>${inv.amount?.toLocaleString()}</td>
+                <td>
+                  <span className={`status ${inv.status === 'Paid' ? 'paid' : 'due'}`}>
+                    {inv.status || "Due Soon"}
+                  </span>
+                </td>
+                <td>
+                  <button className="action-btn" onClick={() => openView(inv)}>View</button>
+                  {inv.status !== "Paid" && (
+                    <button 
+                      className="action-btn" 
+                      style={{marginLeft: "5px", backgroundColor: "#28a745", color: "white"}} 
+                      onClick={() => window.location.href = `/payments?invoice=${inv.invoice_number}`}
+                    >
+                      Pay
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
           </tbody>
-
         </table>
-
       </div>
 
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>{viewMode ? "Invoice Details" : "Add New Invoice"}</h3>
+            <input placeholder="INV Number" value={newInvoice.invoice_number} readOnly={viewMode} onChange={(e) => setNewInvoice({...newInvoice, invoice_number: e.target.value})} />
+            <input placeholder="Description" value={newInvoice.description} readOnly={viewMode} onChange={(e) => setNewInvoice({...newInvoice, description: e.target.value})} />
+            <input type="number" placeholder="Amount" value={newInvoice.amount === 0 ? "" : newInvoice.amount} readOnly={viewMode} onChange={(e) => setNewInvoice({...newInvoice, amount: parseFloat(e.target.value)})} />
+            
+            <div className="modal-actions">
+              {!viewMode && <button className="new-btn" onClick={handleSave}>Save</button>}
+              {!viewMode && <button className="action-btn" onClick={handleClear}>Clear</button>}
+              <button className="action-btn" onClick={() => { setShowModal(false); handleClear(); }}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

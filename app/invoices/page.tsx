@@ -15,7 +15,6 @@ export default function Invoices() {
     if (data) setInvoices(data);
   };
 
-  // పేజీ రిఫ్రెష్ అయ్యేలా మార్చబడింది
   useEffect(() => {
     fetchInvoices();
     window.addEventListener('focus', fetchInvoices);
@@ -37,6 +36,14 @@ export default function Invoices() {
       setShowModal(false);
       handleClear();
       fetchInvoices();
+    }
+  };
+
+  // ADDED: Delete function
+  const deleteInvoice = async (invoiceNumber: string) => {
+    if (confirm("Are you sure you want to clear this invoice?")) {
+      const { error } = await supabase.from("invoices").delete().eq("invoice_number", invoiceNumber);
+      if (!error) fetchInvoices();
     }
   };
 
@@ -90,6 +97,14 @@ export default function Invoices() {
                       Pay
                     </button>
                   )}
+                  {/* ADDED: Clear Button */}
+                  <button 
+                    className="action-btn" 
+                    style={{marginLeft: "5px", backgroundColor: "#dc3545", color: "white"}} 
+                    onClick={() => deleteInvoice(inv.invoice_number)}
+                  >
+                    Clear
+                  </button>
                 </td>
               </tr>
             ))}

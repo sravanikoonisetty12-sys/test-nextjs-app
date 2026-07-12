@@ -1,11 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-// Ikkada 'NEXT_PUBLIC_SUPABASE_ANON_KEY' ki badulu, Vercel lo meeru pettina name ivvali
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!; 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-if (!supabaseUrl || !supabaseKey) {
-  console.error("Missing Supabase environment variables!");
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error("Supabase environment variables are missing!");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Client-side lo access chese main client
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);

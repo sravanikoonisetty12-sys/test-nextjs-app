@@ -39,10 +39,10 @@ export default function Invoices() {
     }
   };
 
-  // UPDATED: Now uses 'id' instead of 'invoice_number'
-  const deleteInvoice = async (id: string) => {
+  // FIXED: Reverted to use 'invoice_number' since 'id' column does not exist
+  const deleteInvoice = async (invoiceNumber: string) => {
     if (confirm("Are you sure you want to clear this invoice?")) {
-      const { error } = await supabase.from("invoices").delete().eq("id", id);
+      const { error } = await supabase.from("invoices").delete().eq("invoice_number", invoiceNumber);
       if (error) {
         alert("Error: " + error.message);
       } else {
@@ -79,7 +79,7 @@ export default function Invoices() {
           </thead>
           <tbody>
             {invoices.map((inv) => (
-              <tr key={inv.id}>
+              <tr key={inv.invoice_number}>
                 <td>{inv.invoice_number}</td>
                 <td>{inv.description}</td>
                 <td>{inv.date}</td>
@@ -101,11 +101,11 @@ export default function Invoices() {
                       Pay
                     </button>
                   )}
-                  {/* UPDATED: Calling deleteInvoice with inv.id */}
+                  {/* FIXED: Calling deleteInvoice with invoice_number */}
                   <button 
                     className="action-btn" 
                     style={{marginLeft: "5px", backgroundColor: "#dc3545", color: "white"}} 
-                    onClick={() => deleteInvoice(inv.id)}
+                    onClick={() => deleteInvoice(inv.invoice_number)}
                   >
                     Clear
                   </button>

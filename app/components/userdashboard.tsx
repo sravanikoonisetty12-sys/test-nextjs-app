@@ -4,12 +4,22 @@ import { supabase } from "../lib/supabase";
 import { deleteRequestAction } from "../actions"; 
 import "../../styles/dashboard.css";
 
-export default function UserDashboard({ data }: { data: any }) {
+export default function UserDashboard({ 
+  data, 
+  onDelete 
+}: { 
+  data: any; 
+  onDelete?: (id: number) => Promise<void>; 
+}) {
   const router = useRouter();
 
   const deleteRequest = async (id: number) => {
     try {
-      await deleteRequestAction(id);
+      if (onDelete) {
+        await onDelete(id);
+      } else {
+        await deleteRequestAction(id);
+      }
       router.refresh(); 
     } catch (err) {
       console.error("Delete failed:", err);
@@ -20,7 +30,7 @@ export default function UserDashboard({ data }: { data: any }) {
   const handlePay = async (invoiceId: number) => {
     alert("Redirecting to payment gateway...");
     const { error } = await supabase
-      .from('Invoices')
+      .from('invoices')
       .update({ status: 'Paid' })
       .eq('id', invoiceId);
 
@@ -59,7 +69,6 @@ export default function UserDashboard({ data }: { data: any }) {
                 <div>
                   <h4 style={{ margin: "0 0 5px 0" }}>{item.title}</h4>
                   
-                  {/* Added here to show description / messagetext */}
                   <p style={{ margin: "4px 0", color: "#ccc", fontSize: "0.9rem" }}>
                     {item.messagetext || item.description || item.message || "No description provided"}
                   </p>
@@ -87,34 +96,38 @@ export default function UserDashboard({ data }: { data: any }) {
 
           <div className="quick-card" style={{ marginTop: "20px" }}>
             <h3>Your Files</h3>
-            {data?.uploadedFiles?.map((file: any) => (
-              <div key={file.id} style={{ fontSize: "0.85rem", marginBottom: "5px" }}>
-                📄 {file.file_name.replace('public/', '')}
-              </div>
-            ))}
-            <button onClick={() => router.push("/file-upload")}>Manage Uploads</button>
+            {data?.uploadedFiles?.length > 0 && (
+              data.uploadedFiles.map((file: any) => (
+                <div key={file.id} style={{ fontSize: "0.85rem", marginBottom: "5px" }}>
+                  📄 {file.file_name?.replace('public/', '') || "file"}
+                </div>
+              ))
+            )}
+            <button onClick={() => router.push("/file-upload")} style={{ marginTop: data?.uploadedFiles?.length > 0 ? "10px" : "0px" }}>Manage Uploads</button>
           </div>
 
           <div className="quick-card" style={{ marginTop: "20px" }}>
             <h3>Invoices</h3>
-            {data?.invoices?.map((inv: any) => (
-              <div key={inv.id} style={{ marginBottom: "15px", borderBottom: "1px solid #444" }}>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span>Due: {inv.due_date}</span>
-                  <span>${inv.amount}</span>
+            {data?.invoices?.length > 0 && (
+              data.invoices.map((inv: any) => (
+                <div key={inv.id} style={{ marginBottom: "15px", borderBottom: "1px solid #444", paddingBottom: "10px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.9rem" }}>
+                    <span>Due: {inv.due_date || "N/A"}</span>
+                    <span>${inv.amount || 0}</span>
+                  </div>
+                  {inv.status === 'Paid' ? (
+                    <p style={{ color: "#28a745", fontSize: "0.80rem", margin: "5px 0" }}>✅ Paid Successfully</p>
+                  ) : (
+                    <button 
+                      onClick={() => handlePay(inv.id)}
+                      style={{ width: "100%", background: "#28a745", color: "white", marginTop: "5px", border: "none", padding: "5px", cursor: "pointer", borderRadius: "4px" }}
+                    >
+                      Pay Now
+                    </button>
+                  )}
                 </div>
-                {inv.status === 'Unpaid' ? (
-                  <button 
-                    onClick={() => handlePay(inv.id)}
-                    style={{ width: "100%", background: "#28a745", color: "white", marginTop: "5px", border: "none", padding: "5px", cursor: "pointer" }}
-                  >
-                    Pay Now
-                  </button>
-                ) : (
-                  <p style={{ color: "#28a745", fontSize: "0.8rem", margin: "5px 0" }}>✅ Paid Successfully</p>
-                )}
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

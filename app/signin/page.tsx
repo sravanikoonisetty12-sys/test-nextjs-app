@@ -39,9 +39,32 @@ export default function Signin() {
         return;
       }
 
+      // Automatically create/update profile
+      const role =
+        data.user.email === "admin0123@gmail.com" ? "admin" : "user";
+
+      const { error: upsertError } = await supabase
+        .from("Profiles")
+        .upsert(
+          {
+            id: data.user.id,
+            email: data.user.email,
+            role,
+          },
+          {
+            onConflict: "id",
+          }
+        );
+
+      if (upsertError) {
+        console.error(upsertError);
+        alert("Failed to create profile.");
+        return;
+      }
+
       // Fetch Role
       const { data: profile, error: profileError } = await supabase
-        .from("Profiles") // If your table name is lowercase, change to "profiles"
+        .from("Profiles")
         .select("role")
         .eq("id", data.user.id)
         .single();
@@ -59,7 +82,6 @@ export default function Signin() {
 
       router.replace("/dashboard");
       router.refresh();
-
     } catch (err) {
       console.error(err);
       alert("Something went wrong.");
@@ -71,7 +93,6 @@ export default function Signin() {
   return (
     <div className="signin-wrapper">
       <div className="login-card">
-
         <h1>
           Nexus <span>·</span> Client
         </h1>
@@ -79,7 +100,6 @@ export default function Signin() {
         <p>Sign in to your client portal</p>
 
         <form onSubmit={handleSubmit}>
-
           <div className="input-group">
             <label>Email Address</label>
 
@@ -107,9 +127,7 @@ export default function Signin() {
           <button type="submit" disabled={loading}>
             {loading ? "Signing In..." : "Sign In"}
           </button>
-
         </form>
-
       </div>
     </div>
   );

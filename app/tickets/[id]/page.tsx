@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 export default function TicketDetail() {
-  // useParams() hook ni use chestunnam, idi client component kabatti direct ga pani chestundi
   const params = useParams();
   const id = params?.id as string;
   

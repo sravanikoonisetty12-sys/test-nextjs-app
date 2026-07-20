@@ -2,6 +2,7 @@
 
 import { Geist, Geist_Mono } from "next/font/google";
 import { usePathname, useRouter } from "next/navigation";
+import { supabase } from "./lib/supabase";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -22,12 +23,13 @@ export default function RootLayout({
   const pathname = usePathname();
   const router = useRouter();
 
-  // ✅ UPDATED HOOK: Added /signed-out to display standalone page without sidebar panel mesh
   const isAuthPage = pathname === "/signin" || pathname === "/signup" || pathname === "/signed-out";
 
-  // ✅ UPDATED HOOK: Rerouting path context redirect array to /signed-out target link
-  const handleSignOut = () => {
-    router.push("/signed-out");
+  // ✅ UPDATED: Supabase signOut లాజిక్ యాడ్ చేశాను
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push("/signin");
+    router.refresh(); // పేజీని రిఫ్రెష్ చేస్తుంది
   };
 
   return (
@@ -42,8 +44,6 @@ export default function RootLayout({
           </div>
         ) : (
           <div className="app-layout">
-            
-            {/* ✅ FIXED HOOK: Corrected comment block wrapper format here */}
             <aside className="sidebar shrink-0">
               <div>
                 <div className="logo">
@@ -103,7 +103,6 @@ export default function RootLayout({
                 {children}
               </div>
             </main>
-
           </div>
         )}
       </body>

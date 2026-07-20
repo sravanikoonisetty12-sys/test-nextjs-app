@@ -1,137 +1,200 @@
 "use client";
-
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 import "../styles/invoices.css";
 
-export default function Invoices() {
+export default function InvoicesPage() {
+  const router = useRouter();
   const [invoices, setInvoices] = useState<any[]>([]);
-  const [showModal, setShowModal] = useState(false);
-  const [viewMode, setViewMode] = useState(false);
-  const [newInvoice, setNewInvoice] = useState({ invoice_number: "", description: "", amount: 0 });
+  const [usersList, setUsersList] = useState<any[]>([]);
+  const [currentUserRole, setCurrentUserRole] = useState<string>("user");
+  const [currentUserEmail, setCurrentUserEmail] = useState<string>("");
+  
+  const [newInv, setNewInv] = useState({ 
+    invoice_number: "", 
+    description: "", 
+    amount: 0, 
+    user_email: "" 
+  });
 
-  const fetchInvoices = async () => {
-    const { data } = await supabase.from("invoices").select("*");
-    if (data) setInvoices(data);
-  };
+  const checkUserAndFetch = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user && user.email) {
+      setCurrentUserEmail(user.email);
 
-  useEffect(() => {
-    fetchInvoices();
-    window.addEventListener('focus', fetchInvoices);
-    return () => window.removeEventListener('focus', fetchInvoices);
-  }, []);
+      const { data: profileData } = await supabase
+        .from("Profiles")
+        .select("role")
+        .eq("email", user.email)
+        .single();
 
-  const handleSave = async () => {
-    const today = new Date().toISOString().split('T')[0];
-    const { error } = await supabase.from("invoices").insert([{
-      invoice_number: newInvoice.invoice_number,
-      description: newInvoice.description,
-      amount: newInvoice.amount,
-      date: today,
-      due_date: today,
-      status: 'Due Soon'
-    }]);
-    
-    if (!error) {
-      setShowModal(false);
-      handleClear();
-      fetchInvoices();
-    }
-  };
+      const role = profileData ? profileData.role : "user";
+      setCurrentUserRole(role);
 
-  // FIXED: Reverted to use 'invoice_number' since 'id' column does not exist
-  const deleteInvoice = async (invoiceNumber: string) => {
-    if (confirm("Are you sure you want to clear this invoice?")) {
-      const { error } = await supabase.from("invoices").delete().eq("invoice_number", invoiceNumber);
-      if (error) {
-        alert("Error: " + error.message);
+      if (role === "admin") {
+        const { data } = await supabase.from("invoices").select("*");
+        if (data) setInvoices(data);
+        fetchUsers();
       } else {
-        fetchInvoices();
+        const { data } = await supabase
+          .from("invoices")
+          .select("*")
+          .eq("user_email", user.email);
+
+        if (data) {
+          setInvoices(data);
+        }
       }
     }
   };
 
-  const handleClear = () => {
-    setNewInvoice({ invoice_number: "", description: "", amount: 0 });
+  const fetchUsers = async () => {
+    const { data } = await supabase
+      .from("Profiles")
+      .select("email")
+      .eq("role", "user");
+    if (data) setUsersList(data);
   };
 
-  const openView = (inv: any) => {
-    setNewInvoice({ invoice_number: inv.invoice_number, description: inv.description, amount: inv.amount });
-    setViewMode(true);
-    setShowModal(true);
+  useEffect(() => { 
+    checkUserAndFetch();
+
+    const channel = supabase.channel('realtime-invoices')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices' }, () => {
+        checkUserAndFetch();
+      })
+      .subscribe();
+      
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  const addInvoice = async () => {
+    if (!newInv.invoice_number || !newInv.user_email) {
+      alert("Please enter the Invoice # and select a User Email!");
+      return;
+    }
+
+    const { error } = await supabase.from("invoices").insert([{ 
+      ...newInv, 
+      status: "Due Soon", 
+      date: new Date().toISOString().split('T')[0] 
+    }]);
+    
+    if (!error) {
+      setNewInv({ invoice_number: "", description: "", amount: 0, user_email: "" });
+      checkUserAndFetch();
+    } else {
+      alert("Error: " + error.message);
+    }
+  };
+
+  const clearInvoice = async (id: string) => {
+    if (confirm("Are you sure you want to delete this invoice?")) {
+      await supabase.from("invoices").delete().eq("invoice_number", id);
+      checkUserAndFetch();
+    }
   };
 
   return (
     <div className="main-content">
-      <h1 className="page-title">Invoices</h1>
-      <p className="subtitle">View and manage all your invoices in one place.</p>
-
+      <h1 className="page-title">
+        {currentUserRole === 'admin' ? 'Admin Invoices' : 'My Invoices'}
+      </h1>
+      
       <div className="invoice-card">
-        <div className="top-bar">
-          <input type="text" placeholder="Search by invoice number, description..." className="search-input" />
-          <select className="status-filter"><option value="all">All Statuses</option></select>
-          <button className="new-btn" onClick={() => { setViewMode(false); handleClear(); setShowModal(true); }}>New Invoice</button>
-        </div>
+        {currentUserRole === 'admin' && (
+          <div className="add-invoice-form" style={{ marginBottom: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <input 
+              className="search-input" 
+              placeholder="Invoice #" 
+              value={newInv.invoice_number}
+              onChange={(e) => setNewInv({...newInv, invoice_number: e.target.value})} 
+            />
+            <input 
+              className="search-input" 
+              placeholder="Description" 
+              value={newInv.description}
+              onChange={(e) => setNewInv({...newInv, description: e.target.value})} 
+            />
+            <input 
+              className="search-input" 
+              type="number" 
+              placeholder="Amount" 
+              value={newInv.amount || ""}
+              onChange={(e) => setNewInv({...newInv, amount: Number(e.target.value)})} 
+            />
+            
+            <select 
+              className="search-input" 
+              value={newInv.user_email}
+              onChange={(e) => setNewInv({...newInv, user_email: e.target.value})}
+            >
+              <option value="">Select User Email</option>
+              {usersList.map((user, index) => (
+                <option key={index} value={user.email}>
+                  {user.email}
+                </option>
+              ))}
+            </select>
+
+            <button className="new-btn" onClick={addInvoice}>Add Invoice</button>
+          </div>
+        )}
 
         <table className="invoice-table">
           <thead>
-            <tr><th>INVOICE #</th><th>DESCRIPTION</th><th>DATE</th><th>DUE DATE</th><th>AMOUNT</th><th>STATUS</th><th>ACTIONS</th></tr>
+            <tr>
+              <th>INVOICE #</th>
+              <th>USER</th>
+              <th>DESCRIPTION</th>
+              <th>AMOUNT</th>
+              <th>STATUS</th>
+              <th>ACTIONS</th>
+            </tr>
           </thead>
           <tbody>
-            {invoices.map((inv) => (
-              <tr key={inv.invoice_number}>
-                <td>{inv.invoice_number}</td>
-                <td>{inv.description}</td>
-                <td>{inv.date}</td>
-                <td>{inv.due_date}</td>
-                <td>${inv.amount?.toLocaleString()}</td>
-                <td>
-                  <span className={`status ${inv.status === 'Paid' ? 'paid' : 'due'}`}>
-                    {inv.status || "Due Soon"}
-                  </span>
-                </td>
-                <td>
-                  <button className="action-btn" onClick={() => openView(inv)}>View</button>
-                  {inv.status !== "Paid" && (
-                    <button 
-                      className="action-btn" 
-                      style={{marginLeft: "5px", backgroundColor: "#28a745", color: "white"}} 
-                      onClick={() => window.location.href = `/payments?invoice=${inv.invoice_number}`}
-                    >
-                      Pay
-                    </button>
-                  )}
-                  {/* FIXED: Calling deleteInvoice with invoice_number */}
-                  <button 
-                    className="action-btn" 
-                    style={{marginLeft: "5px", backgroundColor: "#dc3545", color: "white"}} 
-                    onClick={() => deleteInvoice(inv.invoice_number)}
-                  >
-                    Clear
-                  </button>
-                </td>
+            {invoices.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: "center", padding: "20px" }}>No invoices found.</td>
               </tr>
-            ))}
+            ) : (
+              invoices.map((inv) => (
+                <tr key={inv.invoice_number}>
+                  <td>{inv.invoice_number}</td>
+                  <td>{inv.user_email || "N/A"}</td>
+                  <td>{inv.description}</td>
+                  <td>${inv.amount}</td>
+                  <td>
+                    <span className={`status ${inv.status === 'Received' ? 'paid' : 'due'}`}>
+                      {inv.status}
+                    </span>
+                  </td>
+                  <td>
+                    {currentUserRole !== 'admin' ? (
+                      <button 
+                        className="action-btn" 
+                        style={{backgroundColor: "#ffc107", color: "black", fontWeight: "bold"}} 
+                        onClick={() => router.push(`/payments?invoice=${inv.invoice_number}&amount=${inv.amount}`)}
+                      >
+                        Pay
+                      </button>
+                    ) : (
+                      <button 
+                        className="action-btn" 
+                        style={{backgroundColor: "#dc3545", color: "white"}} 
+                        onClick={() => clearInvoice(inv.invoice_number)}
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
-
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h3>{viewMode ? "Invoice Details" : "Add New Invoice"}</h3>
-            <input placeholder="INV Number" value={newInvoice.invoice_number} readOnly={viewMode} onChange={(e) => setNewInvoice({...newInvoice, invoice_number: e.target.value})} />
-            <input placeholder="Description" value={newInvoice.description} readOnly={viewMode} onChange={(e) => setNewInvoice({...newInvoice, description: e.target.value})} />
-            <input type="number" placeholder="Amount" value={newInvoice.amount === 0 ? "" : newInvoice.amount} readOnly={viewMode} onChange={(e) => setNewInvoice({...newInvoice, amount: parseFloat(e.target.value)})} />
-            
-            <div className="modal-actions">
-              {!viewMode && <button className="new-btn" onClick={handleSave}>Save</button>}
-              {!viewMode && <button className="action-btn" onClick={handleClear}>Clear</button>}
-              <button className="action-btn" onClick={() => { setShowModal(false); handleClear(); }}>Close</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

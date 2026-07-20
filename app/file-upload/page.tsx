@@ -22,14 +22,28 @@ export default function FileUpload() {
     if (!file) return;
     setLoading(true);
 
-    const { data, error } = await supabase.storage
+    const { data: storageData, error: uploadError } = await supabase.storage
       .from("uploads")
       .upload(`public/${file.name}`, file);
 
-    if (error) {
-      alert("Error: " + error.message);
+    if (uploadError) {
+      alert("Error: " + uploadError.message);
     } else {
-      alert("File uploaded successfully!");
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const { error: dbError } = await supabase
+        .from("UploadedFiles")
+        .insert([
+          { 
+            file_name: file.name, 
+            file_path: storageData.path, 
+            user_id: user?.id 
+          }
+        ]);
+
+      if (dbError) console.error("DB Error:", dbError.message);
+      else alert("File uploaded successfully!");
+
       setFile(null);
       fetchFiles(); 
     }
@@ -41,9 +55,7 @@ export default function FileUpload() {
       .from('uploads')
       .getPublicUrl(`public/${fileName}`);
       
-    if (data.publicUrl) {
-      window.open(data.publicUrl, '_blank');
-    }
+    if (data.publicUrl) window.open(data.publicUrl, '_blank');
   };
 
   const deleteFile = async (fileName: string) => {
@@ -51,11 +63,8 @@ export default function FileUpload() {
       .from('uploads')
       .remove([`public/${fileName}`]);
 
-    if (error) {
-      alert("Delete fail ayindi: " + error.message);
-    } else {
-      fetchFiles(); 
-    }
+    if (error) alert("Delete fail ayindi: " + error.message);
+    else fetchFiles(); 
   };
 
   return (
@@ -65,8 +74,6 @@ export default function FileUpload() {
       <div className="top-section">
         <div className="upload-card">
           <h3 className="card-heading">Upload Files</h3>
-          
-          {/* File Selection Box */}
           <div className="upload-box" style={{ border: '2px dashed #ccc', padding: '20px', textAlign: 'center' }}>
             <input 
               type="file" 
@@ -75,13 +82,7 @@ export default function FileUpload() {
               style={{ display: 'none' }} 
             />
             <label htmlFor="fileInput" style={{ cursor: 'pointer', display: 'block' }}>
-              {file ? (
-                <div style={{ color: '#0070f3', fontWeight: 'bold' }}>
-                  📄 {file.name}
-                </div>
-              ) : (
-                "Click here to select a file"
-              )}
+              {file ? <div style={{ color: '#0070f3', fontWeight: 'bold' }}>📄 {file.name}</div> : "Click here to select a file"}
             </label>
           </div>
 
@@ -114,9 +115,7 @@ export default function FileUpload() {
           <tbody>
             {files.map((f, index) => (
               <tr key={index}>
-                <td onClick={() => openFile(f.name)} style={{ cursor: 'pointer' }}>
-                  📄 {f.name}
-                </td>
+                <td onClick={() => openFile(f.name)} style={{ cursor: 'pointer' }}>📄 {f.name}</td>
                 <td>{(f.metadata?.size / 1024 / 1024).toFixed(2) || 0} MB</td>
                 <td>
                   <button onClick={() => deleteFile(f.name)} style={{ color: 'red', cursor: 'pointer', background: 'none', border: 'none' }}>

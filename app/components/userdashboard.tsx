@@ -48,7 +48,7 @@ export default function UserDashboard({
           <div style={{ display: "flex", alignItems: "center", gap: "15px", flexWrap: "wrap" }}>
             <h1 style={{ margin: 0 }}>Welcome back, User 👋</h1>
             <img 
-              src="/dashboard-girl.png" 
+              src="/admin-dashboard.png" 
               alt="Dashboard Illustration" 
               style={{ width: "95px", height: "95px", objectFit: "contain" }}
             />

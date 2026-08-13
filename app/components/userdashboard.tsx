@@ -42,16 +42,11 @@ export default function UserDashboard({
 
   return (
     <div className="dashboard-container">
-      {/* Header with image */}
+      {/* Header without image */}
       <div className="header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "15px", flexWrap: "wrap" }}>
             <h1 style={{ margin: 0 }}>Welcome back, User 👋</h1>
-            <img 
-              src="/admin-dashboard.png" 
-              alt="Dashboard Illustration" 
-              style={{ width: "95px", height: "95px", objectFit: "contain" }}
-            />
           </div>
           <p style={{ color: "#2d2d2d", fontWeight: "500", marginTop: "5px" }}>Here is your dashboard overview</p>
         </div>

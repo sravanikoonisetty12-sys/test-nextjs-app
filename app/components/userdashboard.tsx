@@ -42,7 +42,7 @@ export default function UserDashboard({
 
   return (
     <div className="dashboard-container">
-      {/* Header with increased image size */}
+      {/* Header with image */}
       <div className="header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "15px", flexWrap: "wrap" }}>

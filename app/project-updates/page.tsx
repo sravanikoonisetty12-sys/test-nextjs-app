@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/app/lib/supabase";
 import AdminProjectUpdates from "@/app/components/adminprojectupdates";
@@ -18,13 +19,17 @@ export default function ProjectUpdatesPage() {
 
   const checkUserRole = async () => {
     try {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
       if (error) throw error;
 
       if (session && session.user) {
         setCurrentUser(session.user);
         const userEmail = session.user.email?.toLowerCase().trim();
-        
+
         // If the logged-in email matches the admin email, set isAdmin to true
         if (userEmail === ADMIN_EMAIL.toLowerCase().trim()) {
           setIsAdmin(true);
@@ -43,7 +48,17 @@ export default function ProjectUpdatesPage() {
   };
 
   if (loading) {
-    return <div style={{ color: "#000000", padding: "40px", textAlign: "center" }}>Loading...</div>;
+    return (
+      <div
+        style={{
+          color: "#000000",
+          padding: "40px",
+          textAlign: "center",
+        }}
+      >
+        Loading...
+      </div>
+    );
   }
 
   return (
@@ -51,7 +66,7 @@ export default function ProjectUpdatesPage() {
       {isAdmin ? (
         <AdminProjectUpdates />
       ) : (
-        <UserProjectUpdates user={currentUser} />
+        <UserProjectUpdates />
       )}
     </div>
   );

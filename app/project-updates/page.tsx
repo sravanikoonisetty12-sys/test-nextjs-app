@@ -51,7 +51,7 @@ export default function ProjectUpdatesPage() {
       {isAdmin ? (
         <AdminProjectUpdates />
       ) : (
-        <UserProjectUpdates user={currentUser} />
+        <UserProjectUpdates />
       )}
     </div>
   );

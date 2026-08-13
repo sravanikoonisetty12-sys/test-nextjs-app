@@ -4,7 +4,6 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
-// This forces the page to render at runtime, preventing the build error
 export const dynamic = "force-dynamic";
 
 function PaymentContent() {
@@ -48,8 +47,22 @@ function PaymentContent() {
 
   return (
     <div className="payments-page-container">
-      <h1>Make a Payment</h1>
-      <p className="subtitle">Securely pay outstanding invoices using your preferred method.</p>
+      {/* Make a Payment heading పక్కన ఇమేజ్ సైజ్ మరింత పెంచడం జరిగింది (width: 130px, height: 130px) */}
+      <div style={{ display: "flex", alignItems: "center", gap: "20px", marginBottom: "10px" }}>
+        <h1 style={{ fontSize: "40px", fontWeight: 400, color: "#111111", margin: 0, lineHeight: 1.2 }}>
+          Make a Payment
+        </h1>
+        <img 
+          src="/payments.png" 
+          alt="Payments" 
+          style={{ width: "130px", height: "130px", objectFit: "contain" }} 
+          suppressHydrationWarning={true}
+        />
+      </div>
+
+      <p className="subtitle" style={{ color: "#000000", fontSize: "16px", marginBottom: "30px", opacity: 1 }}>
+        Securely pay outstanding invoices using your preferred method.
+      </p>
 
       <div className="summary-card">
         <p>TOTAL OUTSTANDING</p>
@@ -80,19 +93,19 @@ function PaymentContent() {
 
         <form onSubmit={handlePaymentSubmit}>
           <label>Name on Card</label>
-          <input type="text" placeholder="Alex Chen" value={cardName} onChange={(e) => setCardName(e.target.value)} required />
+          <input type="text" placeholder="Alex Chen" value={cardName} onChange={(e) => setCardName(e.target.value)} required suppressHydrationWarning={true} />
 
           <label>Card Number</label>
-          <input type="text" placeholder="1234 5678 9012 3456" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} required />
+          <input type="text" placeholder="1234 5678 9012 3456" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} required suppressHydrationWarning={true} />
 
           <div className="row">
             <div>
               <label>Expiry Date</label>
-              <input type="text" placeholder="MM/YY" value={expiry} onChange={(e) => setExpiry(e.target.value)} required />
+              <input type="text" placeholder="MM/YY" value={expiry} onChange={(e) => setExpiry(e.target.value)} required suppressHydrationWarning={true} />
             </div>
             <div>
               <label>CVV</label>
-              <input type="password" placeholder="•••" value={cvv} onChange={(e) => setCvv(e.target.value)} required />
+              <input type="password" placeholder="•••" value={cvv} onChange={(e) => setCvv(e.target.value)} required suppressHydrationWarning={true} />
             </div>
           </div>
 
@@ -109,7 +122,6 @@ function PaymentContent() {
   );
 }
 
-// Wrap in Suspense to resolve the Build/Prerender error
 export default function PaymentsPage() {
   return (
     <Suspense fallback={<div className="payments-page-container">Loading...</div>}>

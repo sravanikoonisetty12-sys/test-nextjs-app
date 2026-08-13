@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../lib/supabase";
+import { supabase } from "@/app/lib/supabase";
 import AdminDashboard from "../components/admindashboard";
 import UserDashboard from "../components/userdashboard";
 
@@ -26,7 +26,6 @@ export default function DashboardPage() {
         return;
       }
 
-      // Profile fetch
       const { data: profile, error: profileError } = await supabase
         .from("Profiles")
         .select("role")
@@ -37,35 +36,30 @@ export default function DashboardPage() {
         console.log("FULL ERROR DETAILS:", JSON.stringify(profileError, null, 2));
       }
 
-      // Admin Login Logic
-      const admin = user.email === "admin.123@gmail.com" || profile?.role === "admin";
+      const admin = user.email === "admin0123@gmail.com" || profile?.role === "admin";
       
       setIsAdmin(admin);
-      await loadData(admin);
+      await loadData(admin, user.id);
     } catch (err) {
-      console.error(err);
+      console.error("CheckUser Error:", err);
+      router.replace("/signin");
     } finally {
       setLoading(false);
     }
   }
 
-  async function loadData(admin: boolean) {
+  async function loadData(admin: boolean, userId: string) {
     try {
-      const { data: { user } } = await supabase.auth.getUser(); 
-      
-      if (!user) return;
-
-      const res = await fetch(`/api/dashboard?userId=${user.id}&isAdmin=${admin}`);
+      const res = await fetch(`/api/dashboard?userId=${userId}&isAdmin=${admin}`);
       
       if (!res.ok) throw new Error("Failed to fetch dashboard");
       const json = await res.json();
       setData(json);
     } catch (err) {
-      console.error(err);
+      console.error("LoadData Error:", err);
     }
   }
 
-  // అడ్మిన్ లేదా యూజర్ రిక్వెస్ట్‌ని డిలీట్ చేయడానికి/క్లియర్ చేయడానికి హ్యాండ్లర్
   async function handleDelete(id: number) {
     try {
       const res = await fetch("/api/dashboard", {
@@ -75,7 +69,10 @@ export default function DashboardPage() {
       });
       
       if (res.ok) {
-        await loadData(isAdmin); 
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await loadData(isAdmin, user.id);
+        }
       } else {
         alert("Failed to delete request");
       }
@@ -85,7 +82,16 @@ export default function DashboardPage() {
   }
 
   if (loading) {
-    return <h2>Loading...</h2>;
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", background: "#fdf2f8" }}>
+        <img 
+          src="https://img.icons8.com/clouds/200/work.png" 
+          alt="Loading Illustration" 
+          style={{ width: "120px", height: "120px", marginBottom: "15px", objectFit: "contain" }} 
+        />
+        <h2 style={{ color: "#ec4899", fontFamily: "sans-serif" }}>Loading...</h2>
+      </div>
+    );
   }
 
   return isAdmin ? (

@@ -1,20 +1,28 @@
-
- @import "@fortawesome/fontawesome-free/css/all.min.css";
-
-/* ================= HEADER ================= */
+@import "@fortawesome/fontawesome-free/css/all.min.css";
 
 .header h1 {
   font-size: 30px;
   margin-bottom: 10px;
-  color: #111;
+  color: #2d2d2d;
 }
 
 .header p {
-  color: #f9f4f4;
+  color: #2d2d2d !important;
   margin-bottom: 25px;
+  font-size: 16px;
 }
 
-/* ================= STATS ================= */
+/* Dashboard Banner / Vector Illustration Header */
+.header {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 101, 163, 0.12) 0%, rgba(177, 116, 255, 0.12) 100%), 
+              url('https://cdn-icons-png.flaticon.com/512/3061/3061341.png') no-repeat right 30px center;
+  background-size: 110px, contain;
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 101, 163, 0.2);
+  margin-bottom: 30px;
+}
 
 .stats {
   display: grid;
@@ -26,34 +34,35 @@
   background: #ffffff;
   padding: 25px;
   border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 30px rgba(255, 101, 163, 0.08);
   transition: 0.3s ease;
+  border: 1px solid #f0e6ed;
 }
 
 .card:hover {
   transform: translateY(-4px);
+  border-color: #ff65a3;
 }
 
 .card h5 {
-  color: #555;
+  color: #8c8c8c;
   margin-bottom: 10px;
   font-size: 13px;
+  font-weight: 600;
 }
 
 .card h2 {
   font-size: 28px;
-  color: #111;
+  color: #2d2d2d;
 }
 
 .red {
-  color: #d92c2c;
+  color: #ff65a3;
 }
 
 .green {
   color: #10a246;
 }
-
-/* ================= CONTENT GRID ================= */
 
 .content-grid {
   display: grid;
@@ -62,25 +71,23 @@
   margin-top: 30px;
 }
 
-/* ================= PANELS ================= */
-
 .activity,
 .quick-card,
 .invoice-card {
-  background: #161515;   /* ⭐ BLACK BOX */
+  background: #ffffff;   /* Clean modern white card matching theme */
   padding: 25px;
-  border-radius: 15px;
-  color: #ffffff;
+  border-radius: 20px;
+  color: #2d2d2d;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(255, 101, 163, 0.08);
+  border: 1px solid #f0e6ed;
 }
-
-/* ================= ACTIVITY ================= */
 
 .activity .item {
   display: flex;
   gap: 15px;
   padding: 15px 0;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid #f0e6ed;
 }
 
 .activity .item:last-child {
@@ -98,69 +105,77 @@
 }
 
 .success {
-  background: #dcfce7;
-  color: #16a34a;
+  background: #fef0f6;
+  color: #ff65a3;
 }
 
 .file {
-  background: #ffedd5;
-  color: #b45309;
+  background: #f3e8ff;
+  color: #b174ff;
 }
 
 .invoice {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: #fef0f6;
+  color: #ff65a3;
 }
 
 .activity-text h4 {
   font-size: 15px;
   margin-bottom: 5px;
-  color: #fff;
+  color: #2d2d2d;
 }
 
 .activity-text p {
   font-size: 13px;
-  color: #aaa;
+  color: #8c8c8c;
 }
-
-/* ================= QUICK ACTIONS ================= */
 
 .quick-card button {
   width: 100%;
   padding: 14px;
   margin-top: 12px;
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
   font-size: 15px;
-  background: #1f1f1f;
-  color: white;
+  font-weight: bold;
+  background: #faf6fa;
+  color: #2d2d2d;
   transition: 0.3s;
+  border: 1px solid #f0e6ed;
 }
 
 .quick-card button:hover {
-  opacity: 0.85;
+  background: #fef0f6;
+  border-color: #ff65a3;
+  color: #ff65a3;
 }
 
 .primary {
-  background: #112d89 !important;
+  background: linear-gradient(135deg, #ff65a3 0%, #b174ff 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 0 10px 20px rgba(255, 101, 163, 0.25);
 }
 
-/* ================= INVOICE CARD ================= */
+.primary:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
 
 .invoice-card h3 {
-  color: #ffffff;
+  color: #2d2d2d;
   margin-bottom: 15px;
   font-size: 16px;
+  font-weight: bold;
 }
 
-/* ROWS */
 .invoice-card .invoice {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid #2a2a2a;
+  border-bottom: 1px solid #f0e6ed;
   background: transparent;
 }
 
@@ -172,10 +187,8 @@
 .invoice-card span,
 .invoice-card strong,
 .invoice-card p {
-  color: #ffffff;
+  color: #2d2d2d;
 }
-
-/* ================= RESPONSIVE ================= */
 
 @media (max-width: 1024px) {
   .stats {

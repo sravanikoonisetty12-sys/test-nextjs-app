@@ -10,7 +10,7 @@
 body {
   min-height: 100vh;
   overflow: hidden;
-  background: #05022d;
+  background: #fcf4f8;
 }
 
 /* ================= BACKGROUND ================= */
@@ -23,14 +23,14 @@ body {
 
   background:
     radial-gradient(circle at left,
-      rgba(255, 140, 0, 0.6),
+      rgba(255, 101, 163, 0.25),
       transparent 40%),
 
     radial-gradient(circle at right,
-      rgba(219, 41, 130, 0.4),
+      rgba(177, 116, 255, 0.2),
       transparent 45%),
 
-    #111;
+    #fcf4f8;
 
   filter: blur(18px);
 }
@@ -51,46 +51,77 @@ body {
 
 .login-card {
   width: 420px;
-  background: #eae9e3;
-  padding: 40px;
+  background: #ffffff;
+  padding: 30px 40px;
   border-radius: 25px;
-  box-shadow: 0 25px 60px rgba(0,0,0,.25);
+  box-shadow: 0 25px 60px rgba(255, 101, 163, 0.15);
 
   z-index: 10;
   text-align: left;
+  border: 1px solid rgba(255, 101, 163, 0.2);
+  position: relative;
+  margin-top: 15px;
+}
+
+/* Cute Vector / 3D Icon Perfectly Positioned */
+.login-card::before {
+  content: "";
+  display: block;
+  width: 50px;
+  height: 50px;
+  background: url('https://cdn-icons-png.flaticon.com/512/4712/4712109.png') no-repeat center center;
+  background-size: contain;
+  margin: 0 auto 10px auto;
 }
 
 /* TITLE */
 
 .login-card h1 {
   font-size: 38px;
-  color: #111827;
-  margin-bottom: 10px;
+  color: #2d2d2d;
+  margin-bottom: 5px;
+  text-align: center;
 }
 
 .login-card h1 span {
-  color: #e90b0b;
+  color: #ff65a3;
 }
 
 /* TEXT */
 
 .login-card p {
-  color: #777;
-  margin-bottom: 25px;
+  color: #8c8c8c;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 /* INPUT */
 
 .input-group {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #444;
+  font-size: 14px;
 }
 
 .input-group input {
   width: 100%;
-  padding: 14px;
+  padding: 12px 14px;
   border-radius: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #ffd1e3;
   outline: none;
+  background: #faf6fa;
+  color: #2d2d2d;
+  font-size: 15px;
+}
+
+.input-group input:focus {
+  border-color: #ff65a3;
   background: #fff;
 }
 
@@ -99,27 +130,43 @@ body {
 button {
   width: 100%;
   padding: 14px;
-  margin-top: 10px;
+  margin-top: 8px;
 
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
 
-  background: #2f5be7;
+  background: linear-gradient(135deg, #ff65a3 0%, #b174ff 100%);
   color: white;
 
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 10px 20px rgba(255, 101, 163, 0.3);
+  transition: 0.3s;
 }
 
 button:hover {
-  background: #2149c7;
+  opacity: 0.9;
+  transform: translateY(-2px);
 }
 
-/* SMALL TEXT */
+/* SMALL TEXT / LINKS */
 
 small {
   display: block;
   text-align: center;
-  margin-top: 18px;
-  color: #222;
+  margin-top: 15px;
+  color: #8c8c8c;
+}
+
+small a {
+  color: #ff65a3;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+p a {
+  color: #ff65a3;
+  text-decoration: none;
+  font-weight: bold;
 }

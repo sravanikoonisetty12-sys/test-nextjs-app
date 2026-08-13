@@ -23,7 +23,7 @@ export default function Signin() {
     setLoading(true);
 
     try {
-      // Login
+      // 1. Sign in with password
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
@@ -31,18 +31,20 @@ export default function Signin() {
 
       if (error) {
         alert(error.message);
+        setLoading(false);
         return;
       }
 
       if (!data.user) {
         alert("Login failed.");
+        setLoading(false);
         return;
       }
 
-      // Automatically create/update profile
       const role =
         data.user.email === "admin0123@gmail.com" ? "admin" : "user";
 
+      // 2. Upsert profile safely
       const { error: upsertError } = await supabase
         .from("Profiles")
         .upsert(
@@ -57,35 +59,20 @@ export default function Signin() {
         );
 
       if (upsertError) {
-        console.error(upsertError);
-        alert("Failed to create profile.");
-        return;
+        console.error("Profile upsert error:", upsertError.message);
+        // We can let the user proceed even if profile sync fails, or alert them
       }
 
-      // Fetch Role
-      const { data: profile, error: profileError } = await supabase
-        .from("Profiles")
-        .select("role")
-        .eq("id", data.user.id)
-        .single();
-
-      if (profileError) {
-        console.error(profileError);
-        alert("Profile not found.");
-        return;
-      }
-
-      // Save role
-      localStorage.setItem("role", profile.role);
+      // 3. Store role locally and redirect
+      localStorage.setItem("role", role);
 
       alert("Login Successful!");
 
       router.replace("/dashboard");
       router.refresh();
     } catch (err) {
-      console.error(err);
+      console.error("Unexpected error during sign in:", err);
       alert("Something went wrong.");
-    } finally {
       setLoading(false);
     }
   };
@@ -93,9 +80,18 @@ export default function Signin() {
   return (
     <div className="signin-wrapper">
       <div className="login-card">
-        <h1>
+        <h1 style={{ marginTop: "10px" }}>
           Nexus <span>·</span> Client
         </h1>
+
+        {/* Cute 3D Vector Illustration */}
+        <div style={{ textAlign: "center", margin: "10px 0" }}>
+          <img 
+            src="https://img.icons8.com/clouds/200/work.png" 
+            alt="Signin Illustration" 
+            style={{ width: "130px", height: "130px", objectFit: "contain", margin: "0 auto" }} 
+          />
+        </div>
 
         <p>Sign in to your client portal</p>
 
@@ -108,6 +104,7 @@ export default function Signin() {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              suppressHydrationWarning={true}
               required
             />
           </div>
@@ -120,6 +117,7 @@ export default function Signin() {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              suppressHydrationWarning={true}
               required
             />
           </div>

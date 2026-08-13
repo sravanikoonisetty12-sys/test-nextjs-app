@@ -16,7 +16,7 @@ body {
 }
 
 .main-content h1 {
-    font-size: 50px;
+    font-size: 40px;
     color: #111;
 }
 
@@ -65,12 +65,14 @@ body {
 }
 
 .new-btn {
-    background: #2d5cff;
+    background: linear-gradient(135deg, #d946ef, #9333ea);
     color: white;
     border: none;
     padding: 14px 20px;
     border-radius: 8px;
     cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 4px 6px rgba(217, 70, 239, 0.3);
 }
 
 /* Table */

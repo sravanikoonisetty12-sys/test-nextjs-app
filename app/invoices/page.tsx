@@ -97,10 +97,24 @@ export default function InvoicesPage() {
   };
 
   return (
-    <div className="main-content">
-      <h1 className="page-title">
-        {currentUserRole === 'admin' ? 'Admin Invoices' : 'My Invoices'}
-      </h1>
+    <div className="main-content" style={{ padding: "0px 30px 30px 30px", maxWidth: "1200px" }}>
+      
+      {/* Header section: Title and Image side by side */}
+      <div style={{ display: "flex", alignItems: "center", gap: "20px", marginBottom: "20px", flexWrap: "wrap" }}>
+        <div>
+          <h1 className="page-title" style={{ fontSize: "30px", margin: 0, fontWeight: "bold", color: "#000000" }}>
+            {currentUserRole === 'admin' ? 'Admin Invoices' : 'My Invoices'}
+          </h1>
+          <p style={{ fontSize: "14px", color: "#475569", marginTop: "5px", marginBottom: "0px", fontWeight: "500" }}>
+            {currentUserRole === 'admin' ? 'Manage and create client invoices efficiently.' : 'View and pay your pending invoices securely.'}
+          </p>
+        </div>
+        <img 
+          src="/invoice.png" 
+          alt="Invoices Illustration" 
+          style={{ width: "190px", height: "190x", objectFit: "contain" }}
+        />
+      </div>
       
       <div className="invoice-card">
         {currentUserRole === 'admin' && (
@@ -156,7 +170,7 @@ export default function InvoicesPage() {
           <tbody>
             {invoices.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: "center", padding: "20px" }}>No invoices found.</td>
+                <td colSpan={6} style={{ textAlign: "center", padding: "30px", color: "#475569", fontStyle: "italic", fontSize: "14px" }}>No invoices found.</td>
               </tr>
             ) : (
               invoices.map((inv) => (

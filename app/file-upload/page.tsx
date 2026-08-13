@@ -137,6 +137,11 @@ export default function FileUpload() {
     id: string,
     filePath: string
   ) => {
+    if (isAdmin) {
+      setFiles((prevFiles) => prevFiles.filter((f) => f.id !== id));
+      return;
+    }
+
     const { error: storageError } =
       await supabase.storage
         .from("uploads")
@@ -161,19 +166,40 @@ export default function FileUpload() {
   };
 
   return (
-    <>
-      <h1 className="page-title">File Upload</h1>
+    <div style={{ padding: "0px 30px 30px 30px", color: "#000000", maxWidth: "1200px" }}>
+      
+      {/* Header section: Text and Image tightly packed side by side */}
+      <div style={{ display: "flex", alignItems: "center", gap: "15px", marginBottom: "0px", flexWrap: "wrap" }}>
+        <div>
+          <h2 className="page-title" style={{ fontSize: "30px", margin: 0, fontWeight: "bold", color: "#000000" }}>
+            File Upload
+          </h2>
+          <p style={{ fontSize: "14px", color: "#475569", marginTop: "5px", marginBottom: "0px", fontWeight: "500" }}>
+            Upload and manage your files securely.
+          </p>
+        </div>
+        <img 
+          src="/fileupload.png" 
+          alt="File Upload Illustration" 
+          style={{ width: "160px", height: "160px", objectFit: "contain" }}
+        />
+      </div>
 
-      <div className="top-section">
-        <div className="upload-card">
-          <h3 className="card-heading">Upload Files</h3>
+      <div className="top-section" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "30px", marginBottom: "30px", marginTop: "10px" }}>
+        <div className="upload-card" style={{ background: "#ffffff", padding: "25px", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)" }}>
+          <h3 className="card-heading" style={{ fontSize: "18px", margin: "0 0 15px 0", color: "#1e3a8a" }}>
+            Upload Files
+          </h3>
 
           <div
             className="upload-box"
             style={{
-              border: "2px dashed #ccc",
+              border: "2px dashed #cbd5e1",
               padding: "20px",
               textAlign: "center",
+              background: "#f8fafc",
+              borderRadius: "8px",
+              marginBottom: "15px",
             }}
           >
             <input
@@ -195,23 +221,34 @@ export default function FileUpload() {
               {file ? (
                 <div
                   style={{
-                    color: "#0070f3",
+                    color: "#8b5cf6",
                     fontWeight: "bold",
                   }}
                 >
                   📄 {file.name}
                 </div>
               ) : (
-                "Click here to select a file"
+                <span style={{ color: "#475569", fontSize: "14px" }}>Click here to select a file</span>
               )}
             </label>
           </div>
 
-          <div className="buttons">
+          <div className="buttons" style={{ display: "flex", gap: "10px" }}>
             <button
               className="upload-btn"
               onClick={handleUpload}
               disabled={loading || !file}
+              style={{
+                background: "linear-gradient(135deg, #ec4899, #8b5cf6)",
+                color: "#fff",
+                border: "none",
+                padding: "10px 20px",
+                borderRadius: "6px",
+                fontWeight: "600",
+                cursor: "pointer",
+                width: "fit-content",
+                opacity: loading || !file ? 0.6 : 1,
+              }}
             >
               {loading ? "Uploading..." : "Upload"}
             </button>
@@ -219,6 +256,16 @@ export default function FileUpload() {
             <button
               className="clear-btn"
               onClick={() => setFile(null)}
+              style={{
+                background: "transparent",
+                color: "#475569",
+                border: "1px solid #cbd5e1",
+                padding: "10px 20px",
+                borderRadius: "6px",
+                fontWeight: "600",
+                cursor: "pointer",
+                width: "fit-content",
+              }}
             >
               Clear
             </button>
@@ -226,59 +273,62 @@ export default function FileUpload() {
         </div>
 
         <div className="right-panel">
-          <div className="card">
-            <h3>Storage Used</h3>
-            <p>
+          <div className="card" style={{ background: "#ffffff", padding: "25px", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", height: "100%" }}>
+            <h3 style={{ fontSize: "18px", margin: "0 0 15px 0", color: "#1e3a8a" }}>Storage Used</h3>
+            <p style={{ color: "#000000", fontSize: "15px", fontWeight: "500", margin: 0 }}>
               {(files.length * 2.5).toFixed(1)} MB / 500 MB
             </p>
           </div>
         </div>
       </div>
 
-      <div className="table-card">
-        <h3>
+      <div className="table-card" style={{ background: "#ffffff", padding: "25px", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)" }}>
+        <h3 style={{ fontSize: "18px", margin: "0 0 20px 0", color: "#1e3a8a" }}>
           {isAdmin
             ? "All Users Uploaded Files (Admin View)"
             : "My Uploaded Files"}
         </h3>
 
-        <table>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr>
-              <th>File Name</th>
+            <tr style={{ borderBottom: "1px solid #e2e8f0", textAlign: "left" }}>
+              <th style={{ padding: "12px", color: "#475569", fontSize: "14px", fontWeight: "600" }}>File Name</th>
 
               {isAdmin && (
-                <th>Uploaded By (Email)</th>
+                <th style={{ padding: "12px", color: "#475569", fontSize: "14px", fontWeight: "600" }}>Uploaded By (Email)</th>
               )}
 
-              <th>Action</th>
+              <th style={{ padding: "12px", color: "#475569", fontSize: "14px", fontWeight: "600" }}>Action</th>
             </tr>
           </thead>
 
           <tbody>
             {files.length > 0 ? (
               files.map((f) => (
-                <tr key={f.id}>
+                <tr key={f.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
                   <td
                     onClick={() =>
                       openFile(f.file_path)
                     }
                     style={{
+                      padding: "12px",
                       cursor: "pointer",
-                      color: "#0070f3",
+                      color: "#8b5cf6",
+                      fontSize: "14px",
+                      fontWeight: "500",
                     }}
                   >
                     📄 {f.file_name}
                   </td>
 
                   {isAdmin && (
-                    <td>
+                    <td style={{ padding: "12px", color: "#000000", fontSize: "14px" }}>
                       {f.Profiles?.email ??
                         "Unknown User"}
                     </td>
                   )}
 
-                  <td>
+                  <td style={{ padding: "12px" }}>
                     <button
                       onClick={() =>
                         deleteFile(
@@ -287,9 +337,12 @@ export default function FileUpload() {
                         )
                       }
                       style={{
-                        color: "red",
-                        border: "none",
-                        background: "none",
+                        color: "#dc2626",
+                        border: "1px solid #dc2626",
+                        background: "transparent",
+                        padding: "2px 8px",
+                        borderRadius: "4px",
+                        fontSize: "11px",
                         cursor: "pointer",
                       }}
                     >
@@ -304,7 +357,10 @@ export default function FileUpload() {
                   colSpan={isAdmin ? 3 : 2}
                   style={{
                     textAlign: "center",
-                    padding: "20px",
+                    padding: "30px",
+                    color: "#475569",
+                    fontStyle: "italic",
+                    fontSize: "14px",
                   }}
                 >
                   No files uploaded
@@ -314,6 +370,6 @@ export default function FileUpload() {
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   );
 }

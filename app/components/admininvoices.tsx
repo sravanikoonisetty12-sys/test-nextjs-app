@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import "../styles/invoices.css"; // Ensure this matches your project path
-
+import "../styles/invoices.css"; 
 export default function AdminInvoices() {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [newInv, setNewInv] = useState({ invoice_number: "", description: "", amount: 0 });
@@ -14,7 +13,6 @@ export default function AdminInvoices() {
 
   useEffect(() => { 
     fetchInvoices(); 
-    // Realtime update listener
     const channel = supabase.channel('realtime-admin').on('postgres_changes', { event: '*', schema: 'public', table: 'invoices' }, fetchInvoices).subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
@@ -46,10 +44,25 @@ export default function AdminInvoices() {
       <div className="invoice-card">
         {/* Input area */}
         <div className="add-invoice-form" style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
-          <input className="search-input" placeholder="Invoice #" onChange={(e) => setNewInv({...newInv, invoice_number: e.target.value})} />
-          <input className="search-input" placeholder="Description" onChange={(e) => setNewInv({...newInv, description: e.target.value})} />
-          <input className="search-input" type="number" placeholder="Amount" onChange={(e) => setNewInv({...newInv, amount: Number(e.target.value)})} />
-          <button className="new-btn" onClick={addInvoice}>Add Invoice</button>
+          <input className="search-input" value={newInv.invoice_number} placeholder="Invoice #" onChange={(e) => setNewInv({...newInv, invoice_number: e.target.value})} />
+          <input className="search-input" value={newInv.description} placeholder="Description" onChange={(e) => setNewInv({...newInv, description: e.target.value})} />
+          <input className="search-input" value={newInv.amount || ""} type="number" placeholder="Amount" onChange={(e) => setNewInv({...newInv, amount: Number(e.target.value)})} />
+          <button 
+            className="new-btn" 
+            onClick={addInvoice}
+            style={{
+              background: "linear-gradient(135deg, #d946ef, #9333ea)",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "6px",
+              fontWeight: "600",
+              cursor: "pointer",
+              padding: "0 20px",
+              boxShadow: "0 4px 6px rgba(217, 70, 239, 0.3)"
+            }}
+          >
+            Add Invoice
+          </button>
         </div>
 
         {/* Table area */}

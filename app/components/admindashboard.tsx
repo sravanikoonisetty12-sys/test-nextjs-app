@@ -13,81 +13,129 @@ export default function AdminDashboard({ data, onDelete }: { data: any; onDelete
   };
 
   return (
-    <div className="dashboard-page">
-      <div className="header">
-        <h1>Good Morning, Admin 👋</h1>
+    <div className="dashboard-page" style={{ width: "100%", padding: "30px 40px", boxSizing: "border-box" }}>
+      <div className="header" style={{ display: "flex", alignItems: "center", justifyContent: "flex-start", gap: "15px", marginBottom: "25px", width: "100%" }}>
+        <h1 style={{ color: "#2d2d2d", margin: 0 }}>Good Morning, Admin 👋</h1>
+        <img 
+          src="/admin-dashboard.png" 
+          alt="Admin Dashboard Icon" 
+          style={{ width: "160spx", height: "150px", objectFit: "contain" }} 
+          suppressHydrationWarning={true}
+        />
       </div>
 
-      <div className="stats">
-        <div className="card"><h5>TOTAL PAID</h5><h2>${data?.totalPaid || 0}</h2></div>
-        <div className="card"><h5>OPEN TICKETS</h5><h2>{data?.recentActivity?.filter((i: any) => i.status !== 'Completed').length || 0}</h2></div>
+      <div className="stats" style={{ width: "100%" }}>
+        <div className="card" style={{ background: "#ffffff", border: "1px solid rgba(255, 101, 163, 0.2)", boxShadow: "0 10px 30px rgba(255, 101, 163, 0.08)", borderRadius: "20px" }}>
+          <h5 style={{ color: "#8c8c8c" }}>TOTAL PAID</h5>
+          <h2 style={{ color: "#2d2d2d" }}>${data?.totalPaid || 0}</h2>
+        </div>
+        <div className="card" style={{ background: "#ffffff", border: "1px solid rgba(255, 101, 163, 0.2)", boxShadow: "0 10px 30px rgba(255, 101, 163, 0.08)", borderRadius: "20px" }}>
+          <h5 style={{ color: "#8c8c8c" }}>OPEN TICKETS</h5>
+          <h2 style={{ color: "#2d2d2d" }}>{data?.recentActivity?.filter((i: any) => i.status !== 'Completed').length || 0}</h2>
+        </div>
       </div>
 
-      <div className="content-grid">
-        <div className="activity" style={{ width: "100%" }}>
-          <h3>Recent Requests</h3>
-          {data?.recentActivity?.map((item: any) => (
-            <div key={item.id} style={{ 
-              borderBottom: "1px solid #333", 
-              padding: "20px 0"
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <h4 style={{ margin: "0 0 5px 0", fontSize: "1.2rem" }}>{item.title}</h4>
-                  
-                  {/* Updated here to check messagetext, description, or message */}
-                  <p style={{ margin: "5px 0", color: "#ccc" }}>
-                    {item.messagetext || item.description || item.message || "No description provided"}
-                  </p>
-                  
-                  <div style={{ display: "flex", gap: "15px", fontSize: "0.85rem", color: "#888", marginTop: "10px", flexWrap: "wrap" }}>
-                    <span>✉️ <strong>User:</strong> <span style={{ color: "#ffc107" }}>{item.user_email || "N/A"}</span></span>
-                    <span>📂 <strong>Category:</strong> {item.category || "General"}</span>
-                    <span>⚡ <strong>Priority:</strong> {item.priority || "Normal"}</span>
-                    <span>📅 <strong>Date:</strong> {item.created_at ? new Date(item.created_at).toLocaleDateString() : "N/A"}</span>
-                  </div>
-                  
-                  <div style={{ marginTop: "5px", fontSize: "0.85rem" }}>
-                    <span>Status: <strong style={{ color: item.status === 'Completed' ? '#28a745' : '#ffc107' }}>{item.status || "pending"}</strong></span>
-                  </div>
-                </div>
+      <div className="content-grid" style={{ width: "100%", maxWidth: "100%", display: "block" }}>
+        <div className="activity" style={{ width: "100%", background: "#ffffff", padding: "30px", borderRadius: "20px", boxShadow: "0 15px 35px rgba(255, 101, 163, 0.08)", border: "1px solid rgba(255, 101, 163, 0.2)", boxSizing: "border-box" }}>
+          <h3 style={{ color: "#2d2d2d", marginBottom: "30px", fontSize: "24px", fontWeight: "700" }}>Recent Requests</h3>
+          
+          <div style={{ width: "100%", overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+              <thead>
+                <tr style={{ borderBottom: "2px solid #f0e6ed", color: "#8c8c8c", fontSize: "0.95rem" }}>
+                  <th style={{ padding: "16px 16px" }}>User Name</th>
+                  <th style={{ padding: "16px 16px" }}>Project</th>
+                  <th style={{ padding: "16px 16px" }}>Email</th>
+                  <th style={{ padding: "16px 16px" }}>Category</th>
+                  <th style={{ padding: "16px 16px" }}>Priority</th>
+                  <th style={{ padding: "16px 16px" }}>Date</th>
+                  <th style={{ padding: "16px 16px" }}>Message / Description</th>
+                  <th style={{ padding: "16px 16px" }}>Status</th>
+                  <th style={{ padding: "16px 16px", textAlign: "right" }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data?.recentActivity?.map((item: any) => (
+                  <tr key={item.id} style={{ borderBottom: "1px solid #f8f1f5" }}>
+                    <td style={{ padding: "22px 16px", color: "#ff65a3", fontWeight: "700", fontSize: "1.1rem" }}>
+                      {item.user_name || "N/A"}
+                    </td>
 
-                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                  {item.status !== 'Completed' && (
-                    <button 
-                      onClick={() => markAsDone(item.id)} 
-                      style={{ 
-                        background: "#28a745", 
-                        color: "white", 
-                        border: "none", 
-                        padding: "8px 16px", 
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        fontWeight: "bold"
-                      }}
-                    >
-                      Done
-                    </button>
-                  )}
+                    <td style={{ padding: "22px 16px", color: "#b174ff", fontWeight: "700", fontSize: "1.1rem" }}>
+                      {item.project_name || "N/A"}
+                    </td>
 
-                  <button 
-                    onClick={() => onDelete(item.id)}
-                    style={{ 
-                      background: "#dc3545", 
-                      color: "white", 
-                      border: "none", 
-                      padding: "8px 16px", 
-                      borderRadius: "5px",
-                      cursor: "pointer",
-                      fontWeight: "bold"
-                    }}
-                  >
-                    Clear
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+                    <td style={{ padding: "22px 16px", color: "#d97706", fontSize: "0.95rem", wordBreak: "break-all" }}>
+                      {item.user_email || "N/A"}
+                    </td>
+
+                    <td style={{ padding: "22px 16px", fontSize: "0.95rem", color: "#555" }}>
+                      {item.category || "General"}
+                    </td>
+
+                    <td style={{ padding: "22px 16px", fontSize: "0.95rem", color: "#555" }}>
+                      {item.priority || "Normal"}
+                    </td>
+
+                    <td style={{ padding: "22px 16px", fontSize: "0.95rem", color: "#666", whiteSpace: "nowrap" }}>
+                      {item.created_at ? new Date(item.created_at).toLocaleDateString() : "N/A"}
+                    </td>
+
+                    <td style={{ padding: "22px 16px", minWidth: "260px" }}>
+                      <div style={{ fontSize: "0.95rem", color: "#444" }}>
+                        {item.messagetext || item.description || item.message || "No description"}
+                      </div>
+                    </td>
+
+                    <td style={{ padding: "22px 16px", fontSize: "0.95rem", whiteSpace: "nowrap" }}>
+                      <strong style={{ color: item.status === 'Completed' ? '#ff65a3' : '#f59e0b', fontSize: "1rem" }}>
+                        {item.status || "pending"}
+                      </strong>
+                    </td>
+
+                    <td style={{ padding: "22px 16px", textAlign: "right", whiteSpace: "nowrap" }}>
+                      <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", alignItems: "center" }}>
+                        {item.status !== 'Completed' && (
+                          <button 
+                            onClick={() => markAsDone(item.id)} 
+                            style={{ 
+                              background: "linear-gradient(135deg, #ff65a3 0%, #b174ff 100%)", 
+                              color: "white", 
+                              border: "none", 
+                              padding: "8px 16px", 
+                              borderRadius: "8px",
+                              cursor: "pointer",
+                              fontWeight: "bold",
+                              fontSize: "0.9rem",
+                              boxShadow: "0 4px 12px rgba(255, 101, 163, 0.2)"
+                            }}
+                          >
+                            Done
+                          </button>
+                        )}
+
+                        <button 
+                          onClick={() => onDelete(item.id)}
+                          style={{ 
+                            background: "#fef0f6", 
+                            color: "#ff65a3", 
+                            border: "1px solid #ffd1e3", 
+                            padding: "8px 16px", 
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            fontSize: "0.9rem"
+                          }}
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

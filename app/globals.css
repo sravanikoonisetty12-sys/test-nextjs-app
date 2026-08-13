@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "@fortawesome/fontawesome-free/css/all.min.css";
 
-/* ================= 1. RESET & BASE PROPERTIES ================= */
 * {
   margin: 0;
   padding: 0;
@@ -10,22 +9,21 @@
 }
 
 body {
-  background: #05022d;
+  background: #fcf4f8 !important;
   min-height: 100vh;
   margin: 0;
   padding: 0;
 }
 
-/* ================= 2. SIGN IN GRAPHIC GRADIENT LAYER ================= */
 .background {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background: 
-    radial-gradient(circle at left, rgba(255, 140, 0, 0.6), transparent 40%),
-    radial-gradient(circle at right, rgba(219, 41, 130, 0.4), transparent 45%),
-    #111;
+    radial-gradient(circle at left, rgba(255, 101, 163, 0.25), transparent 40%),
+    radial-gradient(circle at right, rgba(177, 116, 255, 0.2), transparent 45%),
+    #fcf4f8 !important;
   filter: blur(18px);
 }
 
@@ -40,27 +38,28 @@ body {
 
 .login-card {
   width: 420px;
-  background: #eae9e3;
+  background: #ffffff;
   padding: 40px;
   border-radius: 25px;
-  box-shadow: 0 25px 60px rgba(0,0,0,.25);
+  box-shadow: 0 25px 60px rgba(255, 101, 163, 0.15);
   z-index: 10;
   text-align: left;
+  border: 1px solid rgba(255, 101, 163, 0.2);
 }
 
 .login-card h1 {
   font-size: 38px;
-  color: #111827;
+  color: #2d2d2d;
   margin-bottom: 10px;
   font-weight: bold;
 }
 
 .login-card h1 span {
-  color: #e90b0b;
+  color: #040404;
 }
 
 .login-card p {
-  color: #777;
+  color: #8c8c8c;
   margin-bottom: 25px;
 }
 
@@ -72,12 +71,16 @@ body {
   width: 100%;
   padding: 14px;
   border-radius: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #ffd1e3;
   outline: none;
   background: #fff;
+  color: #2d2d2d;
 }
 
-/* ================= 3. CORE APPLAYOUT SIDEBAR MATRIX ================= */
+.input-group input:focus {
+  border-color: #ff65a3;
+}
+
 .app-layout {
   display: flex;
   height: 100vh;
@@ -87,20 +90,22 @@ body {
 
 .sidebar {
   width: 270px;
-  background: #121212;
-  color: white;
+  background: #ffffff;
+  color: #2d2d2d;
   display: flex;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
   flex-shrink: 0;
+  border-right: 1px solid #f0e6ed;
 }
 
 .logo {
   padding: 30px 20px;
   font-size: 28px;
   font-weight: bold;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #f0e6ed;
+  color: #ff65a3;
 }
 
 .profile {
@@ -108,14 +113,19 @@ body {
   align-items: center;
   gap: 15px;
   padding: 20px;
-  border-bottom: 1px solid #222;
+  border-bottom: 1px solid #f0e6ed;
+}
+
+.profile span, .profile div {
+  color: #2d2d2d !important;
 }
 
 .avatar {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: #e8822a;
+  background: #ff65a3;
+  color: #ffffff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -130,46 +140,69 @@ body {
   margin-top: 20px;
 }
 
+/* Sidebar Menu Links - Dark text for visibility */
 .menu li a {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 18px 22px;
-  color: white;
+  color: #2d2d2d !important;
   text-decoration: none;
   transition: 0.3s;
   font-size: 16px;
 }
 
-.menu li a:hover {
-  background: #1d2d5f;
+/* Active or Hover State - Soft Light Pink Background */
+.menu li a.active, 
+.menu li a:hover,
+.menu li.active a {
+  background: #fef0f6 !important;
+  color: #ff65a3 !important;
 }
 
+.menu li a.active i,
+.menu li a:hover i,
+.menu li.active i {
+  color: #ff65a3 !important;
+}
+
+/* Logout / Signout Section - Clear Dark Text */
 .logout {
   margin-top: auto;
   padding: 20px;
-  border-top: 1px solid #222;
+  border-top: 1px solid #f0e6ed;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 12px;
+  color: #2d2d2d !important;
+}
+
+.logout span, .logout i {
+  color: #2d2d2d !important;
 }
 
 .logout:hover {
-  background: #1a1a1a;
+  background: #fef0f6;
+  color: #ff65a3 !important;
 }
 
-/* ================= 4. DASHBOARD & PAYMENTS WORKSPACE ================= */
+.logout:hover span, .logout:hover i {
+  color: #ff65a3 !important;
+}
+
 .main-content {
   flex: 1;
   padding: 50px;
   height: 100vh;
   overflow-y: auto;
-  background: #D38B27; /* Master workspace backdrop exact value alignment override styling */
+  background: 
+    radial-gradient(circle at left, rgba(255, 101, 163, 0.2), transparent 40%),
+    radial-gradient(circle at right, rgba(177, 116, 255, 0.15), transparent 45%),
+    #fcf4f8 !important; 
   box-sizing: border-box;
 }
 
-/* ✅ UPDATED NAME CLASS FROM payment-page-container TO payments-page-container */
 .payments-page-container {
   width: 100%;
   min-height: 100vh;
@@ -180,11 +213,11 @@ body {
   font-size: 54px;
   font-weight: bold;
   margin-bottom: 10px;
-  color: #111111 !important; /* Forces color profile rendering bypassing Tailwind rules */
+  color: #2d2d2d !important; 
 }
 
 .subtitle {
-  color: #ebe5e5;
+  color: #8c8c8c;
   margin-bottom: 30px;
   font-size: 16px;
 }
@@ -193,17 +226,19 @@ body {
 .summary-card {
   width: 100%;
   max-width: 900px;
-  background: #b4c5ea;
+  background: linear-gradient(135deg, #fce4ec 0%, #ede7f6 100%);
   color: rgb(36, 35, 35);
   padding: 30px;
   border-radius: 20px;
   margin-bottom: 30px;
+  box-shadow: 0 10px 30px rgba(177, 116, 255, 0.1);
 }
 
 .summary-card p {
   opacity: .8;
   font-size: 14px;
   font-weight: 600;
+  color: #666;
 }
 
 .summary-card h2 {
@@ -217,59 +252,59 @@ body {
   display: flex;
   justify-content: space-between;
   padding: 15px 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(177, 116, 255, 0.2);
   font-size: 16px;
 }
 
-/* ✅ UPDATED CLASSES FROM payment-card TO payments-card */
 .payments-card {
   width: 100%;
   max-width: 900px;
   background: #fff;
   padding: 40px;
   border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,.05);
+  box-shadow: 0 10px 30px rgba(255, 101, 163, 0.08);
 }
 
 .payments-card h3 {
   margin-bottom: 25px;
   font-size: 20px;
   font-weight: bold;
-  color: #111111;
+  color: #2d2d2d;
 }
 
-/* ✅ UPDATED CLASSES FROM payment-methods TO payments-methods */
 .payments-methods {
   display: flex;
   gap: 15px;
   margin-bottom: 30px;
 }
 
-/* ✅ UPDATED CLASSES FROM payment-option TO payments-option */
 .payments-option {
   flex: 1;
-  border: 2px solid #ddd;
+  border: 2px solid #f0e6ed;
   border-radius: 12px;
   padding: 25px;
   text-align: center;
   cursor: pointer;
   transition: .3s;
+  background: #faf6fa;
 }
 
 .payments-option i {
   font-size: 28px;
   display: block;
   margin-bottom: 10px;
+  color: #b174ff;
 }
 
 .payments-option:hover {
-  border-color: #061650;
+  border-color: #ff65a3;
+  background: #fef0f6;
 }
 
 .payments-option.selected {
-  border-color: #0b1a53;
-  background: #f4f7ff;
-  color: #0a2174;
+  border-color: #ff65a3;
+  background: #fef0f6;
+  color: #ff65a3;
 }
 
 .payments-card label {
@@ -277,21 +312,23 @@ body {
   margin-bottom: 8px;
   margin-top: 15px;
   font-weight: 500;
-  color: #222;
+  color: #444;
 }
 
 .payments-card input {
   width: 100%;
   padding: 15px;
-  border: 1px solid #cccccc;
+  border: 1px solid #f0e6ed;
   border-radius: 10px;
   font-size: 15px;
   outline: none;
   color: #111111;
+  background: #faf6fa;
 }
 
 .payments-card input:focus {
-  border-color: #3561ff;
+  border-color: #ff65a3;
+  background: #fff;
 }
 
 .row {
@@ -306,7 +343,7 @@ body {
 #payBtn {
   width: 100%;
   margin-top: 30px;
-  background: #3561ff;
+  background: linear-gradient(135deg, #ff65a3 0%, #b174ff 100%);
   color: white; 
   border: none;
   padding: 18px;
@@ -315,24 +352,25 @@ body {
   font-weight: bold;
   cursor: pointer;
   transition: .3s;
+  box-shadow: 0 10px 20px rgba(255, 101, 163, 0.3);
 }
 
 #payBtn:hover {
-  background: #102f9f;
+  opacity: 0.9;
+  transform: translateY(-2px);
 }
 
 .secure {
   text-align: center;
-  color: #777;
+  color: #8c8c8c;
   margin-top: 20px;
   font-size: 14px;
 }
 
 .secure i {
-  color: green;
+  color: #2ecc71;
 }
 
-/* ================= 5. INTERFACE RESPONSIVE SYSTEM ================= */
 @media (max-width: 900px) {
   .app-layout {
     flex-direction: column;
@@ -348,7 +386,6 @@ body {
     height: auto;
     padding: 20px;
   }
-  /* ✅ UPDATED NAME RESPONSIVE BLOCKS FOR PLURAL CONSISTENCY */
   .summary-card, .payments-card {
     width: 100%;
   }
@@ -356,10 +393,11 @@ body {
     flex-direction: column;
   }
 }
+
 .my-background {
-  background-color: #3498db;
+  background-color: #ff65a3;
   transition: background-color 0.5s ease;
 }
 .my-background:hover {
-  background-color: #2ecc71;
+  background-color: #b174ff;
 }

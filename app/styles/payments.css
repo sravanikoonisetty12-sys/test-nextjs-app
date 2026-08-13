@@ -7,18 +7,18 @@
 }
 
 .payment-page-container h1 {
-  font-size: 54px !important; 
-  font-weight: 800 !important;
-  color: #111111 !important;
+  font-size: 40px; 
+  font-weight: 800;
+  color: #111111;
   margin-bottom: 10px;
   line-height: 1.2;
 }
 
 .subtitle {
-  color: #f7f5f5 !important;
+  color: #000000;
   font-size: 16px;
   margin-bottom: 30px;
-  opacity: 0.9;
+  opacity: 1;
 }
 
 .summary-card {
@@ -84,7 +84,7 @@
 
 .payment-option {
   flex: 1;
-  border: 2px solid #e5e7eb !important; /* Thick baseline focus frame mapping */
+  border: 2px solid #e5e7eb !important; 
   border-radius: 12px;
   padding: 20px;
   text-align: center;
@@ -106,7 +106,7 @@
 }
 
 .payment-option:hover {
-  border-color: #12225c !important;
+  border-color: #111111;
   background: #fafbff;
 }
 

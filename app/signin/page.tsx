@@ -101,31 +101,32 @@ export default function Signin() {
         <form onSubmit={handleSubmit}>
           <div className="input-group">
             <label>Email Address</label>
-
             <input
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              suppressHydrationWarning={true}
               required
             />
           </div>
 
           <div className="input-group">
             <label>Password</label>
-
             <input
               type="password"
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              suppressHydrationWarning={true}
               required
             />
           </div>
 
-          <button type="submit" disabled={loading}>
+          {/* Hydration warning కి సంబంధించిన పరిష్కారం ఇక్కడ బటన్ లో యాడ్ చేశాను */}
+          <button 
+            suppressHydrationWarning={true} 
+            type="submit" 
+            disabled={loading}
+          >
             {loading ? "Signing In..." : "Sign In"}
           </button>
         </form>

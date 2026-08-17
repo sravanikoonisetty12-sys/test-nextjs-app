@@ -60,7 +60,6 @@ export default function Signin() {
 
       if (upsertError) {
         console.error("Profile upsert error:", upsertError.message);
-        // We can let the user proceed even if profile sync fails, or alert them
       }
 
       // 3. Store role locally and redirect
@@ -84,12 +83,16 @@ export default function Signin() {
           Nexus <span>·</span> Client
         </h1>
 
-        {/* Cute 3D Vector Illustration */}
         <div style={{ textAlign: "center", margin: "10px 0" }}>
-          <img 
-            src="https://img.icons8.com/clouds/200/work.png" 
-            alt="Signin Illustration" 
-            style={{ width: "130px", height: "130px", objectFit: "contain", margin: "0 auto" }} 
+          <img
+            src="https://img.icons8.com/clouds/200/work.png"
+            alt="Signin Illustration"
+            style={{
+              width: "130px",
+              height: "130px",
+              objectFit: "contain",
+              margin: "0 auto",
+            }}
           />
         </div>
 

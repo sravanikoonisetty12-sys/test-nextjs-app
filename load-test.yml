@@ -1,0 +1,14 @@
+config:
+  target: "https://test-nextjs-app1.vercel.app"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 100
+      name: "Ramp up load to 100 users per second"
+scenarios:
+  - flow:
+      - get:
+          url: "/"
+      - get:
+          # Only the path goes here
+          url: "/dashboard"

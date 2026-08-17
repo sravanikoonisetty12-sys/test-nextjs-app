@@ -345,7 +345,6 @@ export default function UserProjectUpdates() {
           </div>
         </div>
 
-        {/* Right Column: User Sent Feedback History */}
         <div>
           <div
             style={{

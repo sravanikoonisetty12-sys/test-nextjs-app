@@ -83,7 +83,52 @@ function PaymentContent() {
         }
       );
 
+      // DEBUG LOGS - ADDED ONLY
+      console.log(
+        "Create Order HTTP Status:",
+        orderResponse.status
+      );
+
+      console.log(
+        "Create Order HTTP OK:",
+        orderResponse.ok
+      );
+
       const orderData = await orderResponse.json();
+
+      // DEBUG LOGS - ADDED ONLY
+      console.log(
+        "========== CREATE ORDER RESPONSE =========="
+      );
+
+      console.log(
+        "Create Order Response:",
+        orderData
+      );
+
+      console.log(
+        "Create Order Error:",
+        orderData?.error
+      );
+
+      console.log(
+        "Create Order ID:",
+        orderData?.id
+      );
+
+      console.log(
+        "Create Order Amount:",
+        orderData?.amount
+      );
+
+      console.log(
+        "Create Order Currency:",
+        orderData?.currency
+      );
+
+      console.log(
+        "==========================================="
+      );
 
       if (!orderResponse.ok) {
         console.error(
@@ -116,6 +161,13 @@ function PaymentContent() {
        * Step 2:
        * Make sure Razorpay checkout is loaded
        */
+
+      // DEBUG LOG - ADDED ONLY
+      console.log(
+        "Razorpay loaded:",
+        !!window.Razorpay
+      );
+
       if (!window.Razorpay) {
         alert(
           "Razorpay checkout is not loaded. Please refresh the page and try again."
@@ -126,6 +178,19 @@ function PaymentContent() {
 
       const razorpayKey =
         process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+
+      // DEBUG LOGS - ADDED ONLY
+      console.log(
+        "Frontend Razorpay Key Exists:",
+        !!razorpayKey
+      );
+
+      console.log(
+        "Frontend Razorpay Key Prefix:",
+        razorpayKey
+          ? razorpayKey.substring(0, 8)
+          : "MISSING"
+      );
 
       if (!razorpayKey) {
         console.error(
@@ -163,6 +228,12 @@ function PaymentContent() {
         handler: async function (
           response: any
         ) {
+          // DEBUG LOG - ADDED ONLY
+          console.log(
+            "Razorpay Payment Response:",
+            response
+          );
+
           try {
             /*
              * Step 4:
@@ -194,6 +265,17 @@ function PaymentContent() {
 
             const verifyData =
               await verifyResponse.json();
+
+            // DEBUG LOGS - ADDED ONLY
+            console.log(
+              "Verify Payment Status:",
+              verifyResponse.status
+            );
+
+            console.log(
+              "Verify Payment Response:",
+              verifyData
+            );
 
             if (
               !verifyResponse.ok ||
@@ -266,6 +348,20 @@ function PaymentContent() {
           },
         },
       };
+
+      // DEBUG LOGS - ADDED ONLY
+      console.log(
+        "Opening Razorpay with:",
+        {
+          keyExists: !!options.key,
+          keyPrefix: options.key
+            ? options.key.substring(0, 8)
+            : "MISSING",
+          amount: options.amount,
+          currency: options.currency,
+          orderId: options.order_id,
+        }
+      );
 
       const razorpay =
         new window.Razorpay(options);

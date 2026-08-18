@@ -5,28 +5,35 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const amount = Number(body.amount);
+    const { amount } = await req.json();
 
-    if (!amount || amount <= 0) {
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!keyId) {
+      return NextResponse.json(
+        {
+          error: "RAZORPAY_KEY_ID is missing on server",
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!keySecret) {
+      return NextResponse.json(
+        {
+          error: "RAZORPAY_KEY_SECRET is missing on server",
+        },
+        { status: 500 }
+      );
+    }
+
+    if (!amount || Number(amount) <= 0) {
       return NextResponse.json(
         {
           error: "Invalid payment amount",
         },
         { status: 400 }
-      );
-    }
-
-    const keyId = process.env.RAZORPAY_KEY_ID;
-    const keySecret = process.env.RAZORPAY_KEY_SECRET;
-
-    if (!keyId || !keySecret) {
-      console.error("Razorpay server credentials are missing.");
-      return NextResponse.json(
-        {
-          error: "Razorpay server configuration is missing.",
-        },
-        { status: 500 }
       );
     }
 
@@ -36,26 +43,22 @@ export async function POST(req: Request) {
     });
 
     const order = await razorpay.orders.create({
-      amount: Math.round(amount * 100),
+      amount: Math.round(Number(amount) * 100),
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
     });
 
-    return NextResponse.json({
-      id: order.id,
-      amount: order.amount,
-      currency: order.currency,
-    });
+    return NextResponse.json(order);
   } catch (error: any) {
-    console.error("Razorpay Create Order Error:", error);
+    console.error("RAZORPAY ERROR:", error);
 
     return NextResponse.json(
       {
         error:
-          error?.description ||
           error?.error?.description ||
+          error?.description ||
           error?.message ||
-          "Unable to create payment order",
+          "Unable to create order",
       },
       { status: 500 }
     );

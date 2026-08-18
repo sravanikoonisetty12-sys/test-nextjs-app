@@ -1,26 +1,31 @@
 import Razorpay from "razorpay";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
   try {
-    const { amount } = await req.json();
+    const body = await req.json();
+    const amount = Number(body.amount);
+
+    if (!amount || amount <= 0) {
+      return NextResponse.json(
+        {
+          error: "Invalid payment amount",
+        },
+        { status: 400 }
+      );
+    }
 
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
-    console.log("KEY ID EXISTS:", !!keyId);
-    console.log("KEY SECRET EXISTS:", !!keySecret);
-
-    if (!keyId) {
+    if (!keyId || !keySecret) {
+      console.error("Razorpay server credentials are missing.");
       return NextResponse.json(
-        { error: "RAZORPAY_KEY_ID missing on server" },
-        { status: 500 }
-      );
-    }
-
-    if (!keySecret) {
-      return NextResponse.json(
-        { error: "RAZORPAY_KEY_SECRET missing on server" },
+        {
+          error: "Razorpay server configuration is missing.",
+        },
         { status: 500 }
       );
     }
@@ -31,21 +36,26 @@ export async function POST(req: Request) {
     });
 
     const order = await razorpay.orders.create({
-      amount: Math.round(Number(amount) * 100),
+      amount: Math.round(amount * 100),
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
     });
 
-    return NextResponse.json(order);
+    return NextResponse.json({
+      id: order.id,
+      amount: order.amount,
+      currency: order.currency,
+    });
   } catch (error: any) {
-    console.error("Create Order Error:", error);
+    console.error("Razorpay Create Order Error:", error);
 
     return NextResponse.json(
       {
         error:
           error?.description ||
+          error?.error?.description ||
           error?.message ||
-          "Unable to create order",
+          "Unable to create payment order",
       },
       { status: 500 }
     );

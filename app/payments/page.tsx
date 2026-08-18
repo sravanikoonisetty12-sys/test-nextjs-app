@@ -15,35 +15,41 @@ declare global {
 function PaymentContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+
   const invoiceId = searchParams.get("invoice");
 
   const [invoice, setInvoice] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (invoiceId) {
-      const fetchInvoice = async () => {
-        const { data, error } = await supabase
-          .from("invoices")
-          .select("*")
-          .eq("invoice_number", Number(invoiceId))
-          .single();
+    if (!invoiceId) return;
 
-        if (error) {
-          console.error("Invoice fetch error:", error);
-          return;
-        }
+    const fetchInvoice = async () => {
+      const { data, error } = await supabase
+        .from("invoices")
+        .select("*")
+        .eq("invoice_number", Number(invoiceId))
+        .single();
 
-        if (data) {
-          setInvoice(data);
-        }
-      };
+      if (error) {
+        console.error("Invoice fetch error:", error);
+        return;
+      }
 
-      fetchInvoice();
-    }
+      if (data) {
+        setInvoice(data);
+      }
+    };
+
+    fetchInvoice();
   }, [invoiceId]);
 
-  const handlePaymentSubmit = async (e: React.FormEvent) => {
+  const handlePaymentSubmit = async (
+    e: React.FormEvent
+  ) => {
     e.preventDefault();
+
+    if (loading) return;
 
     if (!invoice || !invoiceId) {
       alert("Invoice information is missing.");
@@ -51,108 +57,195 @@ function PaymentContent() {
     }
 
     try {
-      console.log("Creating Razorpay order...");
-      console.log("Invoice amount:", invoice.amount);
+      setLoading(true);
 
-      const res = await fetch("/api/create-order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: Number(invoice.amount),
-        }),
-      });
+      const amount = Number(invoice.amount);
 
-      const order = await res.json();
+      if (!amount || amount <= 0) {
+        alert("Invalid invoice amount.");
+        return;
+      }
 
-      console.log("Create order response:", order);
+      /*
+       * Step 1:
+       * Create Razorpay order on server
+       */
+      const orderResponse = await fetch(
+        "/api/create-order",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amount,
+          }),
+        }
+      );
 
-      if (!res.ok || !order.id) {
-        console.error("Create Order API Error:", order);
+      const orderData = await orderResponse.json();
+
+      if (!orderResponse.ok) {
+        console.error(
+          "Create order failed:",
+          orderData
+        );
 
         alert(
-          `Unable to create payment order.\n\n${
-            order.error || "Unknown error occurred."
-          }`
+          orderData?.error ||
+            "Unable to create payment order."
         );
 
         return;
       }
 
+      if (!orderData?.id) {
+        console.error(
+          "Invalid Razorpay order:",
+          orderData
+        );
+
+        alert(
+          "Unable to create payment order."
+        );
+
+        return;
+      }
+
+      /*
+       * Step 2:
+       * Make sure Razorpay checkout is loaded
+       */
+      if (!window.Razorpay) {
+        alert(
+          "Razorpay checkout is not loaded. Please refresh the page and try again."
+        );
+
+        return;
+      }
+
+      const razorpayKey =
+        process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+
+      if (!razorpayKey) {
+        console.error(
+          "NEXT_PUBLIC_RAZORPAY_KEY_ID is missing."
+        );
+
+        alert(
+          "Razorpay checkout configuration is missing."
+        );
+
+        return;
+      }
+
+      /*
+       * Step 3:
+       * Open Razorpay Checkout
+       */
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: razorpayKey,
 
-        amount: order.amount,
+        amount: orderData.amount,
 
-        currency: order.currency,
+        currency: orderData.currency || "INR",
 
         name: "Nexus Client Portal",
 
         description: `Invoice ${invoice.invoice_number}`,
 
-        order_id: order.id,
+        order_id: orderData.id,
 
         theme: {
           color: "#ff65a3",
         },
 
-        handler: async function (response: any) {
+        handler: async function (
+          response: any
+        ) {
           try {
-            console.log("Payment response:", response);
+            /*
+             * Step 4:
+             * Verify payment on server
+             */
+            const verifyResponse =
+              await fetch(
+                "/api/verify-payment",
+                {
+                  method: "POST",
 
-            const verifyRes = await fetch("/api/verify-payment", {
-              method: "POST",
+                  headers: {
+                    "Content-Type":
+                      "application/json",
+                  },
 
-              headers: {
-                "Content-Type": "application/json",
-              },
+                  body: JSON.stringify({
+                    razorpay_order_id:
+                      response.razorpay_order_id,
 
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id:
+                      response.razorpay_payment_id,
 
-                razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature:
+                      response.razorpay_signature,
+                  }),
+                }
+              );
 
-                razorpay_signature: response.razorpay_signature,
-              }),
-            });
+            const verifyData =
+              await verifyResponse.json();
 
-            const verifyData = await verifyRes.json();
+            if (
+              !verifyResponse.ok ||
+              !verifyData.success
+            ) {
+              console.error(
+                "Payment verification failed:",
+                verifyData
+              );
 
-            console.log("Payment verification response:", verifyData);
+              alert(
+                verifyData?.error ||
+                  "Payment verification failed."
+              );
 
-            if (verifyData.success) {
-              const { error } = await supabase
+              return;
+            }
+
+            /*
+             * Step 5:
+             * Update invoice status
+             */
+            const { error } =
+              await supabase
                 .from("invoices")
                 .update({
                   status: "Paid",
                 })
-                .eq("invoice_number", Number(invoiceId));
-
-              if (!error) {
-                alert(
-                  "Payment Successful! Status updated to Paid."
+                .eq(
+                  "invoice_number",
+                  Number(invoiceId)
                 );
 
-                router.push("/invoices");
-                router.refresh();
-              } else {
-                console.error(
-                  "Invoice update error:",
-                  error
-                );
-
-                alert(
-                  "Payment succeeded but invoice update failed."
-                );
-              }
-            } else {
-              alert(
-                `Payment verification failed.\n\n${
-                  verifyData.error || "Unknown verification error."
-                }`
+            if (error) {
+              console.error(
+                "Invoice update error:",
+                error
               );
+
+              alert(
+                "Payment succeeded but invoice update failed."
+              );
+
+              return;
             }
+
+            alert(
+              "Payment Successful! Status updated to Paid."
+            );
+
+            router.push("/invoices");
+            router.refresh();
           } catch (error) {
             console.error(
               "Payment verification error:",
@@ -160,52 +253,50 @@ function PaymentContent() {
             );
 
             alert(
-              "Payment verification failed. Please contact support."
+              "Payment verification failed."
             );
           }
         },
 
         modal: {
           ondismiss: function () {
-            console.log("Payment popup closed.");
+            console.log(
+              "Razorpay payment window closed."
+            );
           },
         },
       };
 
-      if (!window.Razorpay) {
-        alert(
-          "Razorpay Checkout failed to load. Please refresh the page and try again."
-        );
+      const razorpay =
+        new window.Razorpay(options);
 
-        return;
-      }
+      razorpay.on(
+        "payment.failed",
+        function (response: any) {
+          console.error(
+            "Razorpay payment failed:",
+            response
+          );
 
-      const rzp = new window.Razorpay(options);
-
-      rzp.on("payment.failed", function (response: any) {
-        console.error(
-          "Razorpay Payment Failed:",
-          response
-        );
-
-        alert(
-          `Payment failed.\n\n${
+          alert(
             response?.error?.description ||
-            "Please try again."
-          }`
-        );
-      });
+              "Payment failed. Please try again."
+          );
+        }
+      );
 
-      rzp.open();
+      razorpay.open();
     } catch (error) {
       console.error(
-        "Payment creation error:",
+        "Payment error:",
         error
       );
 
       alert(
         "Something went wrong while opening payment."
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -239,7 +330,6 @@ function PaymentContent() {
             height: "130px",
             objectFit: "contain",
           }}
-          suppressHydrationWarning={true}
         />
       </div>
 
@@ -252,8 +342,8 @@ function PaymentContent() {
           opacity: 1,
         }}
       >
-        Securely pay outstanding invoices using your preferred
-        method.
+        Securely pay outstanding invoices using your
+        preferred method.
       </p>
 
       <div className="summary-card">
@@ -337,20 +427,24 @@ function PaymentContent() {
           <button
             type="submit"
             id="payBtn"
+            disabled={loading}
           >
             <i className="fa-solid fa-lock"></i>
 
-            Pay{" "}
-            {invoice
-              ? `₹${invoice.amount?.toLocaleString()}`
-              : "..."}
+            {loading
+              ? "Processing..."
+              : `Pay ${
+                  invoice
+                    ? `₹${invoice.amount?.toLocaleString()}`
+                    : "..."
+                }`}
           </button>
         </form>
 
         <p className="secure">
           <i className="fa-solid fa-shield"></i>{" "}
-          256-bit SSL encrypted · PCI DSS Compliant · Your
-          data is safe
+          256-bit SSL encrypted · PCI DSS
+          Compliant · Your data is safe
         </p>
       </div>
     </div>

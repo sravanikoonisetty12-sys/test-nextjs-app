@@ -6,116 +6,227 @@ import { supabase } from "../lib/supabase";
 
 export const dynamic = "force-dynamic";
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 function PaymentContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const invoiceId = searchParams.get("invoice");
 
   const [invoice, setInvoice] = useState<any>(null);
-  const [selectedMethod, setSelectedMethod] = useState<"card" | "paypal" | "bank">("card");
-  const [cardName, setCardName] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvv, setCvv] = useState("");
 
   useEffect(() => {
     if (invoiceId) {
       const fetchInvoice = async () => {
-        const { data } = await supabase.from("invoices").select("*").eq("invoice_number", invoiceId).single();
+        const { data } = await supabase
+          .from("invoices")
+          .select("*")
+          .eq("invoice_number", Number(invoiceId))
+          .single();
+
         if (data) setInvoice(data);
       };
+
       fetchInvoice();
     }
   }, [invoiceId]);
 
   const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!invoiceId) return;
 
-    const { error } = await supabase
-      .from("invoices")
-      .update({ status: "Paid" })
-      .eq("invoice_number", invoiceId);
+    if (!invoice || !invoiceId) return;
 
-    if (!error) {
-      alert("Payment Successful! Status updated to Paid.");
-      router.push("/invoices");
-    } else {
-      alert("Error processing payment: " + error.message);
+    try {
+      const res = await fetch("/api/create-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: invoice.amount,
+        }),
+      });
+
+      const order = await res.json();
+
+      if (!order.id) {
+        alert("Unable to create payment order.");
+        return;
+      }
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "Nexus Client Portal",
+        description: `Invoice ${invoice.invoice_number}`,
+        order_id: order.id,
+
+        theme: {
+          color: "#ff65a3",
+        },
+
+        handler: async function (response: any) {
+          const verifyRes = await fetch("/api/verify-payment", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+
+          const verifyData = await verifyRes.json();
+
+          if (verifyData.success) {
+            const { error } = await supabase
+              .from("invoices")
+              .update({ status: "Paid" })
+              .eq("invoice_number", Number(invoiceId));
+
+            if (!error) {
+              alert("Payment Successful! Status updated to Paid.");
+              router.push("/invoices");
+              router.refresh();
+            } else {
+              console.error(error);
+              alert("Payment succeeded but invoice update failed.");
+            }
+          } else {
+            alert("Payment verification failed.");
+          }
+        },
+
+        modal: {
+          ondismiss: function () {
+            console.log("Payment popup closed.");
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong while opening payment.");
     }
   };
 
   return (
     <div className="payments-page-container">
-      {/* Make a Payment heading పక్కన ఇమేజ్ సైజ్ మరింత పెంచడం జరిగింది (width: 130px, height: 130px) */}
-      <div style={{ display: "flex", alignItems: "center", gap: "20px", marginBottom: "10px" }}>
-        <h1 style={{ fontSize: "40px", fontWeight: 400, color: "#111111", margin: 0, lineHeight: 1.2 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "20px",
+          marginBottom: "10px",
+        }}
+      >
+        <h1
+          style={{
+            fontSize: "40px",
+            fontWeight: 400,
+            color: "#111111",
+            margin: 0,
+            lineHeight: 1.2,
+          }}
+        >
           Make a Payment
         </h1>
-        <img 
-          src="/payments.png" 
-          alt="Payments" 
-          style={{ width: "130px", height: "130px", objectFit: "contain" }} 
+
+        <img
+          src="/payments.png"
+          alt="Payments"
+          style={{
+            width: "130px",
+            height: "130px",
+            objectFit: "contain",
+          }}
           suppressHydrationWarning={true}
         />
       </div>
 
-      <p className="subtitle" style={{ color: "#000000", fontSize: "16px", marginBottom: "30px", opacity: 1 }}>
+      <p
+        className="subtitle"
+        style={{
+          color: "#000000",
+          fontSize: "16px",
+          marginBottom: "30px",
+          opacity: 1,
+        }}
+      >
         Securely pay outstanding invoices using your preferred method.
       </p>
 
       <div className="summary-card">
         <p>TOTAL OUTSTANDING</p>
-        <h2>{invoice ? `$${invoice.amount?.toLocaleString()}` : "Loading..."}</h2>
-        
+        <h2>{invoice ? `₹${invoice.amount?.toLocaleString()}` : "Loading..."}</h2>
+
         {invoice && (
           <div className="invoice-row">
             <span>Invoice: {invoice.invoice_number}</span>
-            <span>${invoice.amount?.toLocaleString()}</span>
+            <span>₹{invoice.amount?.toLocaleString()}</span>
           </div>
         )}
       </div>
 
       <div className="payments-card">
-        <h3><i className="fa-solid fa-wallet"></i> Payment Method</h3>
+        <h3>
+          <i className="fa-solid fa-wallet"></i> Payment Method
+        </h3>
 
-        <div className="payments-methods">
-          <div onClick={() => setSelectedMethod("card")} className={`payments-option ${selectedMethod === "card" ? "selected" : ""}`} style={{ cursor: "pointer" }}>
-            <i className="fa-solid fa-credit-card"></i> <span>Credit / Debit</span>
-          </div>
-          <div onClick={() => setSelectedMethod("paypal")} className={`payments-option ${selectedMethod === "paypal" ? "selected" : ""}`} style={{ cursor: "pointer" }}>
-            <i className="fa-brands fa-paypal"></i> <span>PayPal</span>
-          </div>
-          <div onClick={() => setSelectedMethod("bank")} className={`payments-option ${selectedMethod === "bank" ? "selected" : ""}`} style={{ cursor: "pointer" }}>
-            <i className="fa-solid fa-building-columns"></i> <span>Bank Transfer</span>
+        <div
+          className="payments-option selected"
+          style={{
+            cursor: "default",
+            padding: "18px",
+            marginBottom: "25px",
+            border: "2px solid #ff65a3",
+            borderRadius: "12px",
+            background: "#fff5fa",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+            <i
+              className="fa-solid fa-shield-halved"
+              style={{ fontSize: "24px", color: "#ff65a3" }}
+            ></i>
+
+            <div>
+              <div
+                style={{
+                  fontWeight: "600",
+                  color: "#111",
+                  marginBottom: "4px",
+                }}
+              >
+                Razorpay Secure Checkout
+              </div>
+
+              <div style={{ fontSize: "14px", color: "#666" }}>
+                UPI • Cards • Net Banking • Wallets
+              </div>
+            </div>
           </div>
         </div>
 
         <form onSubmit={handlePaymentSubmit}>
-          <label>Name on Card</label>
-          <input type="text" placeholder="Alex Chen" value={cardName} onChange={(e) => setCardName(e.target.value)} required suppressHydrationWarning={true} />
-
-          <label>Card Number</label>
-          <input type="text" placeholder="1234 5678 9012 3456" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} required suppressHydrationWarning={true} />
-
-          <div className="row">
-            <div>
-              <label>Expiry Date</label>
-              <input type="text" placeholder="MM/YY" value={expiry} onChange={(e) => setExpiry(e.target.value)} required suppressHydrationWarning={true} />
-            </div>
-            <div>
-              <label>CVV</label>
-              <input type="password" placeholder="•••" value={cvv} onChange={(e) => setCvv(e.target.value)} required suppressHydrationWarning={true} />
-            </div>
-          </div>
-
           <button type="submit" id="payBtn">
-            <i className="fa-solid fa-lock"></i> Pay {invoice ? `$${invoice.amount?.toLocaleString()}` : "..."}
+            <i className="fa-solid fa-lock"></i>
+            Pay {invoice ? `₹${invoice.amount?.toLocaleString()}` : "..."}
           </button>
         </form>
 
         <p className="secure">
-          <i className="fa-solid fa-shield"></i> 256-bit SSL encrypted · PCI DSS Compliant · Your data is safe
+          <i className="fa-solid fa-shield"></i> 256-bit SSL encrypted · PCI DSS
+          Compliant · Your data is safe
         </p>
       </div>
     </div>
@@ -124,7 +235,9 @@ function PaymentContent() {
 
 export default function PaymentsPage() {
   return (
-    <Suspense fallback={<div className="payments-page-container">Loading...</div>}>
+    <Suspense
+      fallback={<div className="payments-page-container">Loading...</div>}
+    >
       <PaymentContent />
     </Suspense>
   );

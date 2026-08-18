@@ -9,8 +9,7 @@ export async function POST(req: Request) {
 
     // Direct ga test keys ni ikkada hardcode chesam (Debugging kosam)
     const keyId = "rzp_test_TREKOjKTWprxm3";
-    const keySecret = "mee_actual_secret_key_ikkada_ivvandi"; // Ikkada mee secret key ivvandi
-
+    const keySecret = "QtKLAyRexXqCtT2bkCnA2akA"; 
     if (!keyId) {
       return NextResponse.json(
         {

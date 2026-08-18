@@ -7,8 +7,9 @@ export async function POST(req: Request) {
   try {
     const { amount } = await req.json();
 
-    const keyId = process.env.RAZORPAY_KEY_ID;
-    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    // Direct ga test keys ni ikkada hardcode chesam (Debugging kosam)
+    const keyId = "rzp_test_TREKOjKTWprxm3";
+    const keySecret = "mee_actual_secret_key_ikkada_ivvandi"; // Ikkada mee secret key ivvandi
 
     if (!keyId) {
       return NextResponse.json(
